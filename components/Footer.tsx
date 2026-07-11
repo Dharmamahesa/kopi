@@ -16,9 +16,9 @@ export default function Footer() {
       <div className="container-jl py-16">
         {/* Top row */}
         <div className="flex flex-col md:flex-row justify-between gap-10 mb-12">
-          {/* Brand */}
+          {/* Brand + Hanko stamp */}
           <div className="max-w-xs">
-            <div className="flex items-center gap-3 mb-4">
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 20 }}>
               <svg width="40" height="40" viewBox="0 0 36 36" fill="none">
                 <polygon points="18,2 32,10 32,26 18,34 4,26 4,10" fill="#C17A3B" />
                 <text x="18" y="23" textAnchor="middle" fontSize="13" fontWeight="700" fontFamily="serif" fill="#FAF7F2">K</text>
@@ -28,11 +28,17 @@ export default function Footer() {
                   Toko Kopi Jaya Lestari
                 </span>
               </div>
+
+              {/* Hanko stamp */}
+              <div className="hanko-stamp" aria-hidden style={{ borderColor: 'rgba(193,122,59,0.6)' }}>
+                <span style={{ color: 'rgba(193,122,59,0.7)', fontSize: 7 }}>純{'\n'}JAYA{'\n'}LESTARI</span>
+              </div>
             </div>
             <p className="label-caps" style={{ color: 'rgba(245,236,215,0.5)', lineHeight: 1.8 }}>
               ROASTERY · HUTAN CEMPAKA<br />
               PRIGEN, PASURUAN · 875 MDPL
             </p>
+            <span className="sumi-divider" style={{ background: 'rgba(245,236,215,0.2)', marginTop: 16 }} />
           </div>
 
           {/* Nav links */}
@@ -42,8 +48,8 @@ export default function Footer() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="label-caps transition-colors duration-200"
-                style={{ color: 'rgba(245,236,215,0.65)', textDecoration: 'none' }}
+                className="nav-link label-caps"
+                style={{ color: 'rgba(245,236,215,0.6)', textDecoration: 'none' }}
               >
                 {link.label}
               </Link>
@@ -66,23 +72,19 @@ export default function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Instagram"
-                className="transition-colors duration-200"
                 style={{ color: 'rgba(245,236,215,0.5)' }}
               >
-                {/* Instagram SVG */}
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
                   <circle cx="12" cy="12" r="4"/>
                   <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none"/>
                 </svg>
               </a>
-              {/* TikTok icon (SVG) */}
               <a
                 href="https://tiktok.com"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="TikTok"
-                className="transition-colors duration-200"
                 style={{ color: 'rgba(245,236,215,0.5)' }}
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
