@@ -1,100 +1,81 @@
 'use client'
 
-import { useState, useRef, useEffect, useCallback } from 'react'
-import { useInView } from '@/hooks/useInView'
-import { products } from '@/data/products'
+import { useState, useRef } from 'react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import ProductCard from './ProductCard'
-import ScrollProgressBar from './ScrollProgressBar'
+import type { Product } from '@/data/products'
 
-const tabs = ['terlaris', 'paket bundle'] as const
+interface ProductCarouselProps {
+  products: Product[]
+}
 
-export default function ProductCarousel() {
-  const [activeTab, setActiveTab] = useState<(typeof tabs)[number]>('terlaris')
-  const scrollRef = useRef<HTMLDivElement>(null)
+export default function ProductCarousel({ products }: ProductCarouselProps) {
+  const trackRef = useRef<HTMLDivElement>(null)
   const [scrollProgress, setScrollProgress] = useState(0)
-  const { ref: sectionRef, isVisible } = useInView(0.1)
 
-  const filteredProducts =
-    activeTab === 'paket bundle'
-      ? products.filter((p) => p.category === 'BUNDLE' || p.type === 'blend')
-      : products
-
-  const handleScroll = useCallback(() => {
-    const el = scrollRef.current
+  const scroll = (dir: 'left' | 'right') => {
+    const el = trackRef.current
     if (!el) return
-    const maxScroll = el.scrollWidth - el.clientWidth
-    if (maxScroll > 0) {
-      setScrollProgress(el.scrollLeft / maxScroll)
-    }
-  }, [])
+    const amount = 280
+    el.scrollBy({ left: dir === 'right' ? amount : -amount, behavior: 'smooth' })
+  }
 
-  useEffect(() => {
-    const el = scrollRef.current
+  const onScroll = () => {
+    const el = trackRef.current
     if (!el) return
-    el.addEventListener('scroll', handleScroll, { passive: true })
-    return () => el.removeEventListener('scroll', handleScroll)
-  }, [handleScroll, activeTab])
-
-  // Horizontal wheel scroll hijacking
-  useEffect(() => {
-    const el = scrollRef.current
-    if (!el) return
-    const onWheel = (e: WheelEvent) => {
-      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
-        const maxScroll = el.scrollWidth - el.clientWidth
-        if (maxScroll > 0) {
-          e.preventDefault()
-          el.scrollLeft += e.deltaY
-        }
-      }
-    }
-    el.addEventListener('wheel', onWheel, { passive: false })
-    return () => el.removeEventListener('wheel', onWheel)
-  }, [activeTab])
+    const max = el.scrollWidth - el.clientWidth
+    setScrollProgress(max > 0 ? el.scrollLeft / max : 0)
+  }
 
   return (
-    <section
-      ref={sectionRef as React.RefObject<HTMLElement>}
-      className="bg-[#FAF7F2] py-12 sm:py-16 px-4 lg:px-10"
-    >
-      {/* Tabs */}
-      <div
-        className={`flex items-center justify-center gap-6 sm:gap-8 mb-8 sm:mb-12 transition-all duration-800 ${
-          isVisible ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
-        }`}
+    <div className="relative">
+      {/* Scroll arrows (desktop) */}
+      <button
+        aria-label="Scroll left"
+        onClick={() => scroll('left')}
+        className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 w-10 h-10 rounded-full items-center justify-center transition-all duration-200"
+        style={{
+          background: '#F5ECD7',
+          border: '1px solid #E8E3DA',
+          boxShadow: '0 4px 16px rgba(59,31,14,0.12)',
+          color: '#1B4332',
+        }}
       >
-        {tabs.map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`relative font-serif text-3xl sm:text-5xl transition-colors duration-300 pb-2 ${
-              activeTab === tab ? 'text-[#1A1A1A]' : 'text-gray-400 hover:text-gray-600'
-            }`}
-          >
-            {tab}
-            {activeTab === tab && (
-              <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-5 h-5 bg-[#3B1F0E] rounded-full animate-scale-in" />
-            )}
-          </button>
+        <ChevronLeft size={18} />
+      </button>
+      <button
+        aria-label="Scroll right"
+        onClick={() => scroll('right')}
+        className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 w-10 h-10 rounded-full items-center justify-center transition-all duration-200"
+        style={{
+          background: '#F5ECD7',
+          border: '1px solid #E8E3DA',
+          boxShadow: '0 4px 16px rgba(59,31,14,0.12)',
+          color: '#1B4332',
+        }}
+      >
+        <ChevronRight size={18} />
+      </button>
+
+      {/* Track */}
+      <div
+        ref={trackRef}
+        onScroll={onScroll}
+        className="flex gap-6 overflow-x-auto scrollbar-hide pb-4"
+        style={{ padding: '0 4px 16px' }}
+      >
+        {products.map((product) => (
+          <ProductCard key={product.id} product={product} />
         ))}
       </div>
 
-      {/* Carousel */}
-      <div
-        ref={scrollRef}
-        className="flex overflow-x-auto scrollbar-hide lg:grid lg:grid-cols-4 gap-0"
-      >
-        {filteredProducts.map((product, i) => (
-          <ProductCard
-            key={product.id}
-            product={product}
-            index={i}
-            isVisible={isVisible}
-          />
-        ))}
+      {/* Scroll progress bar */}
+      <div className="scroll-track">
+        <div
+          className="scroll-thumb"
+          style={{ width: `${scrollProgress * 100}%` }}
+        />
       </div>
-
-      <ScrollProgressBar progress={scrollProgress} />
-    </section>
+    </div>
   )
 }

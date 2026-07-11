@@ -2,213 +2,395 @@
 
 import AnnouncementBar from '@/components/AnnouncementBar'
 import Navbar from '@/components/Navbar'
-import ProcessStep from '@/components/ProcessStep'
 import Footer from '@/components/Footer'
-import { useInView } from '@/hooks/useInView'
+import ProcessTimeline from '@/components/ProcessTimeline'
+import { useEffect, useRef, useState } from 'react'
 
-const steps = [
+const roastingSteps = [
   {
-    icon: '🌱',
-    title: 'Sourcing',
-    description: 'Dipilih langsung dari petani lokal di dataran tinggi Indonesia.',
+    number: '1',
+    title: 'Seleksi',
+    desc: 'Biji dipilih manual. Hanya grade A yang lolos ke roastery kami.',
   },
   {
-    icon: '🔥',
+    number: '2',
     title: 'Roasting',
-    description: 'Dipanggang tangan dengan profil roast yang disesuaikan untuk setiap biji.',
+    desc: 'Small batch. Suhu presisi. Dipantau langsung oleh roaster kami.',
   },
   {
-    icon: '📦',
-    title: 'Packaging',
-    description: 'Dikemas segar dengan valve degassing untuk menjaga kesegaran.',
+    number: '3',
+    title: 'Cooling',
+    desc: 'Didinginkan cepat untuk mengunci profil rasa yang optimal.',
   },
   {
-    icon: '🚚',
-    title: 'Pengiriman',
-    description: 'Dikirim langsung ke pintu rumah Anda dalam 2-3 hari kerja.',
+    number: '4',
+    title: 'Kemas & Kirim',
+    desc: 'Dikemas vakum dalam 24 jam. Dikirim langsung ke pintumu.',
   },
 ]
 
-const values = [
+const origins = [
   {
-    title: 'Keberlanjutan',
-    description:
-      'Kami bekerja langsung dengan petani lokal untuk memastikan praktik pertanian yang berkelanjutan dan adil.',
-    icon: '🌿',
+    region: 'GAYO · ACEH', name: 'Arabika Gayo',
+    desc: 'Dataran tinggi Aceh, 1200–1700 MDPL. Dikenal dengan body tebal dan keasaman sedang.',
+    roast: 'dark',
   },
   {
-    title: 'Transparansi',
-    description:
-      'Setiap produk kami memiliki jejak asal yang jelas — dari kebun mana, dipetik kapan, dan dipanggang oleh siapa.',
-    icon: '🔍',
+    region: 'TORAJA · SULAWESI', name: 'Arabika Toraja',
+    desc: 'Lereng Sulawesi Selatan, 1400–1800 MDPL. Karakter fruity dan rempah yang khas.',
+    roast: 'medium',
   },
   {
-    title: 'Kualitas',
-    description:
-      'Hanya biji kopi grade specialty yang lolos seleksi ketat kami. Tanpa kompromi.',
-    icon: '⭐',
+    region: 'FLORES · NTT', name: 'Arabika Bajawa',
+    desc: 'Kaki Gunung Inerie, 1000–1500 MDPL. Floral dan sweet aftertaste yang panjang.',
+    roast: 'light',
+  },
+  {
+    region: 'KINTAMANI · BALI', name: 'Arabika Kintamani',
+    desc: 'Lereng Gunung Batur, 900–1500 MDPL. Citrusy, clean, favorit cold brew.',
+    roast: 'medium',
+  },
+  {
+    region: 'JAVA · JAWA TIMUR', name: 'Robusta Java',
+    desc: 'Dataran Jawa Timur, 600–900 MDPL. Bold dan earthy untuk espresso terbaik.',
+    roast: 'medium',
+  },
+  {
+    region: 'SUMATERA', name: 'Arabika Sumatera',
+    desc: 'Berbagai kebun pilihan Sumatera, 800–1600 MDPL. Earthly dan herbal yang kompleks.',
+    roast: 'dark',
   },
 ]
+
+const roastChipColors: Record<string, { bg: string; color: string }> = {
+  light: { bg: '#F5ECD7', color: '#414844' },
+  medium: { bg: 'rgba(193,122,59,0.18)', color: '#3B1F0E' },
+  dark: { bg: '#3B1F0E', color: '#F5ECD7' },
+}
+
+function useInView(threshold = 0.1) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [visible, setVisible] = useState(false)
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setVisible(true) },
+      { threshold }
+    )
+    if (ref.current) observer.observe(ref.current)
+    return () => observer.disconnect()
+  }, [threshold])
+  return { ref, visible }
+}
 
 export default function AboutPage() {
-  const { ref: storyRef, isVisible: storyVisible } = useInView(0.1)
-  const { ref: processRef, isVisible: processVisible } = useInView(0.1)
-  const { ref: founderRef, isVisible: founderVisible } = useInView(0.1)
-  const { ref: valuesRef, isVisible: valuesVisible } = useInView(0.1)
+  const { ref: storyRef, visible: storyVisible } = useInView(0.1)
+  const { ref: commitRef, visible: commitVisible } = useInView(0.1)
 
   return (
     <main className="flex-1">
       <AnnouncementBar />
-      <Navbar />
+      <Navbar transparent />
 
-      {/* Hero */}
-      <section className="relative text-[#F5ECD7] pt-32 pb-20 sm:pt-40 sm:pb-28 px-4 text-center overflow-hidden">
-        <div className="absolute inset-0">
-          <div
-            className="w-full h-full bg-cover bg-center"
-            style={{
-              backgroundImage: 'url("/background kopi tentang.png")',
-            }}
-          />
+      {/* ══════════════════════════════════════════
+          HERO — Full viewport cinematic
+      ══════════════════════════════════════════ */}
+      <section
+        className="film-grain relative overflow-hidden flex flex-col items-center justify-center"
+        style={{
+          background: 'linear-gradient(160deg, #0F2419 0%, #1B4332 45%, #243B2F 80%, #1A0A03 100%)',
+          minHeight: '100vh',
+        }}
+      >
+        {/* Letterbox bars */}
+        <div style={{
+          position: 'absolute', top: 0, left: 0, right: 0, height: '10vh',
+          background: '#1B4332', zIndex: 10,
+        }} />
+        <div style={{
+          position: 'absolute', bottom: 0, left: 0, right: 0, height: '10vh',
+          background: '#1B4332', zIndex: 10,
+        }} />
+        {/* Vignette */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: 'radial-gradient(ellipse at center, transparent 25%, rgba(0,0,0,0.65) 100%)',
+          zIndex: 2, pointerEvents: 'none',
+        }} />
+        {/* Light leaks */}
+        <div style={{
+          position: 'absolute', inset: 0, zIndex: 3, pointerEvents: 'none',
+          background: `
+            radial-gradient(ellipse 55% 45% at 0% 0%, rgba(193,122,59,0.22) 0%, transparent 70%),
+            radial-gradient(ellipse 50% 40% at 100% 100%, rgba(193,122,59,0.16) 0%, transparent 70%)
+          `,
+        }} />
+        {/* Floating bean particles */}
+        <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', opacity: 0.06, zIndex: 1 }}>
+          {[...Array(24)].map((_, i) => (
+            <div key={i} style={{
+              position: 'absolute',
+              width: 20 + (i % 5) * 10, height: 12 + (i % 4) * 6,
+              borderRadius: '50%', background: '#C17A3B',
+              top: `${(i * 13 + 8) % 95}%`,
+              left: `${(i * 17 + 5) % 92}%`,
+              transform: `rotate(${i * 47}deg)`,
+            }} />
+          ))}
         </div>
-        <div className="absolute inset-0 bg-black/40" />
-        <div className="relative z-10">
-          <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl mb-4">cerita kami</h1>
-          <p className="text-sm sm:text-base text-[#F5ECD7]/70 max-w-lg mx-auto">
-            Perjalanan dari biji kopi pertama hingga secangkir kopi di tangan Anda.
-          </p>
+
+        {/* Content */}
+        <div style={{ position: 'relative', zIndex: 5, textAlign: 'center', padding: '0 20px' }}>
+          <h1 className="display-lg" style={{ color: '#F5ECD7', fontStyle: 'italic', maxWidth: 700 }}>
+            dari hutan ke cangkirmu
+          </h1>
         </div>
       </section>
 
-      {/* Brand Story */}
+      {/* ══════════════════════════════════════════
+          BRAND STORY — Split layout
+      ══════════════════════════════════════════ */}
       <section
-        ref={storyRef as React.RefObject<HTMLElement>}
-        className={`bg-[#FAF7F2] py-16 sm:py-24 px-4 sm:px-6 lg:px-10 transition-all duration-1000 ${
-          storyVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
-        }`}
+        id="cerita"
+        ref={storyRef}
+        style={{ background: '#FAF7F2', paddingTop: 96, paddingBottom: 96 }}
       >
-        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-          <div className="rounded-2xl overflow-hidden aspect-[4/3] bg-[#E8DDD0]">
-            <img
-              src="https://placehold.co/800x600/3B1F0E/F5ECD7?text=Roastery"
-              alt="Roastery Kopi Nusantara"
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <div>
-            <h2 className="font-serif text-3xl sm:text-4xl text-[#1A1A1A] mb-6">
-              Berawal dari Kecintaan
-            </h2>
-            <div className="space-y-4 text-sm sm:text-base text-gray-700 leading-relaxed">
-              <p>
-                Kopi Nusantara lahir dari sebuah perjalanan sederhana ke dataran tinggi Toraja pada
-                tahun 2018. Di sana, kami menemukan bahwa kopi Indonesia memiliki karakter yang luar
-                biasa — kompleks, berani, dan penuh cerita.
-              </p>
-              <p>
-                Kami percaya bahwa setiap biji kopi memiliki ceritanya sendiri. Dari tangan petani
-                yang merawat, hingga proses roasting yang hati-hati, setiap langkah dilakukan
-                dengan penuh cinta dan dedikasi.
-              </p>
-              <p>
-                Kini, kami menghadirkan kopi-kopi terbaik dari seluruh Nusantara — dari Aceh hingga
-                Papua — langsung ke cangkir Anda. Setiap tegukan adalah perjalanan ke jantung
-                Indonesia.
-              </p>
+        <div className="container-jl">
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: 72,
+              alignItems: 'center',
+            }}
+            className="story-grid"
+          >
+            {/* Left: cinematic photo placeholder */}
+            <div
+              className="image-cinematic rounded-xl overflow-hidden film-grain"
+              style={{
+                aspectRatio: '4/5',
+                background: 'linear-gradient(160deg, #1B4332 0%, #3B1F0E 50%, #1A0A03 100%)',
+                position: 'relative',
+                opacity: storyVisible ? 1 : 0,
+                transform: storyVisible ? 'none' : 'translateX(-24px)',
+                transition: 'opacity 0.9s ease, transform 0.9s ease',
+              }}
+            >
+              {/* Vignette */}
+              <div style={{
+                position: 'absolute', inset: 0,
+                background: 'radial-gradient(ellipse at center, transparent 35%, rgba(0,0,0,0.6) 100%)',
+                zIndex: 2,
+              }} />
+              {/* Light leak */}
+              <div style={{
+                position: 'absolute', inset: 0, zIndex: 3,
+                background: 'radial-gradient(ellipse 60% 50% at 100% 0%, rgba(193,122,59,0.25) 0%, transparent 70%)',
+              }} />
+              {/* Placeholder text */}
+              <div style={{
+                position: 'absolute', inset: 0, zIndex: 4,
+                display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-start',
+                padding: 24,
+              }}>
+                <div>
+                  <p className="label-caps mb-1" style={{ color: '#C17A3B' }}>ROASTERY INTERIOR</p>
+                  <p style={{ color: 'rgba(245,236,215,0.5)', fontSize: 12, fontStyle: 'italic' }}>
+                    Hutan Cempaka, Prigen
+                  </p>
+                </div>
+              </div>
+              {/* Bean texture */}
+              <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', opacity: 0.07 }}>
+                {[...Array(16)].map((_, i) => (
+                  <div key={i} style={{
+                    position: 'absolute',
+                    width: 36 + (i % 4) * 12, height: 22 + (i % 3) * 8,
+                    borderRadius: '50%', background: '#C17A3B',
+                    top: `${(i * 15 + 5) % 92}%`,
+                    left: `${(i * 23 + 3) % 88}%`,
+                    transform: `rotate(${i * 41}deg)`,
+                  }} />
+                ))}
+              </div>
+            </div>
+
+            {/* Right: text */}
+            <div
+              style={{
+                opacity: storyVisible ? 1 : 0,
+                transform: storyVisible ? 'none' : 'translateX(24px)',
+                transition: 'opacity 0.9s ease 0.2s, transform 0.9s ease 0.2s',
+              }}
+            >
+              <p className="label-caps mb-4" style={{ color: '#C17A3B' }}>CERITA KAMI</p>
+              <h2 className="headline-md mb-8" style={{ color: '#1A1C1A' }}>
+                kenapa kami berbeda
+              </h2>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                <p className="body-md" style={{ color: '#414844' }}>
+                  Berdiri di tengah kawasan Hutan Cempaka Prigen, Toko Kopi Jaya Lestari lahir dari
+                  kecintaan mendalam terhadap kopi lokal Nusantara dan keindahan alam lereng
+                  Gunung Arjuno.
+                </p>
+                <p className="body-md" style={{ color: '#414844' }}>
+                  Di ketinggian 875 mdpl, udara sejuk dan tanah subur menjadi latar belakang sempurna
+                  bagi roastery kami. Setiap batch dipanggang kecil — tidak pernah massal — untuk
+                  menjaga karakter rasa asli dari setiap kebun asal.
+                </p>
+                <p className="body-md" style={{ color: '#414844' }}>
+                  Kami percaya bahwa kopi yang baik dimulai dari kejujuran: jujur tentang asal usul,
+                  proses, dan rasa. Tidak ada yang disembunyikan. Hanya biji terbaik, dipanggang
+                  dengan presisi, dikirim segar ke tanganmu.
+                </p>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Proses Kami */}
+      {/* ══════════════════════════════════════════
+          PROSES ROASTING
+      ══════════════════════════════════════════ */}
       <section
-        ref={processRef as React.RefObject<HTMLElement>}
-        className={`bg-white py-16 sm:py-24 px-4 sm:px-6 lg:px-10 transition-all duration-1000 ${
-          processVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
-        }`}
+        id="proses"
+        style={{ background: '#fff', paddingTop: 96, paddingBottom: 96 }}
       >
-        <div className="max-w-5xl mx-auto">
-          <h2 className="font-serif text-3xl sm:text-4xl text-center text-[#1A1A1A] mb-12 sm:mb-16">
-            Proses Kami
-          </h2>
-          <div className="flex flex-col md:flex-row md:justify-between gap-8 md:gap-4">
-            {steps.map((step, i) => (
-              <ProcessStep
-                key={step.title}
-                number={i + 1}
-                icon={step.icon}
-                title={step.title}
-                description={step.description}
-                isLast={i === steps.length - 1}
-              />
-            ))}
+        <div className="container-jl">
+          <ProcessTimeline
+            steps={roastingSteps}
+            overline="PROSES KAMI"
+            headline="bagaimana kami memanggangnya"
+            light
+          />
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════
+          ORIGIN STORIES — Dark section
+      ══════════════════════════════════════════ */}
+      <section
+        className="film-grain relative overflow-hidden"
+        style={{ background: '#1B4332', paddingTop: 100, paddingBottom: 100 }}
+      >
+        {/* Letterbox */}
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '10vh', background: '#1B4332', zIndex: 10 }} />
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '10vh', background: '#1B4332', zIndex: 10 }} />
+        {/* Vignette */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: 'radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.5) 100%)',
+          zIndex: 5, pointerEvents: 'none',
+        }} />
+        {/* Light leaks */}
+        <div style={{
+          position: 'absolute', inset: 0, zIndex: 6, pointerEvents: 'none',
+          background: `
+            radial-gradient(ellipse 50% 40% at 0% 0%, rgba(193,122,59,0.18) 0%, transparent 70%),
+            radial-gradient(ellipse 50% 40% at 100% 100%, rgba(193,122,59,0.14) 0%, transparent 70%)
+          `,
+        }} />
+
+        <div className="container-jl" style={{ position: 'relative', zIndex: 8 }}>
+          <div style={{ textAlign: 'center', marginBottom: 56 }}>
+            <p className="label-caps mb-4" style={{ color: '#C17A3B' }}>ASAL KOPI KAMI</p>
+            <h2 className="headline-md" style={{ color: '#F5ECD7' }}>dari seluruh kepulauan</h2>
+          </div>
+
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: 24,
+          }} className="origins-grid">
+            {origins.map((origin, i) => {
+              const chip = roastChipColors[origin.roast] ?? roastChipColors.medium
+              return (
+                <div
+                  key={origin.region}
+                  style={{
+                    background: 'rgba(245,236,215,0.08)',
+                    border: '1px solid rgba(245,236,215,0.12)',
+                    borderRadius: '1rem',
+                    padding: '24px',
+                  }}
+                >
+                  <p className="label-caps mb-2" style={{ color: '#C17A3B' }}>{origin.region}</p>
+                  <h3 className="headline-sm mb-3" style={{ color: '#F5ECD7', fontSize: '20px' }}>
+                    {origin.name}
+                  </h3>
+                  <p className="body-md mb-4" style={{ color: 'rgba(245,236,215,0.6)', fontSize: '14px' }}>
+                    {origin.desc}
+                  </p>
+                  <span style={{
+                    display: 'inline-block',
+                    padding: '4px 12px', borderRadius: 9999,
+                    background: chip.bg, color: chip.color,
+                    fontSize: '10px', fontWeight: 600, letterSpacing: '0.08em',
+                    textTransform: 'uppercase',
+                  }}>
+                    {origin.roast} roast
+                  </span>
+                </div>
+              )
+            })}
           </div>
         </div>
       </section>
 
-      {/* Founder */}
+      {/* ══════════════════════════════════════════
+          KOMITMEN KAMI
+      ══════════════════════════════════════════ */}
       <section
-        ref={founderRef as React.RefObject<HTMLElement>}
-        className={`bg-[#FAF7F2] py-16 sm:py-24 px-4 sm:px-6 lg:px-10 transition-all duration-1000 ${
-          founderVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
-        }`}
+        ref={commitRef}
+        style={{ background: '#FAF7F2', paddingTop: 96, paddingBottom: 96 }}
       >
-        <div className="max-w-4xl mx-auto">
-          <h2 className="font-serif text-3xl sm:text-4xl text-center text-[#1A1A1A] mb-12">
-            Tim Kami
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+        <div className="container-jl">
+          <div style={{ textAlign: 'center', marginBottom: 56 }}>
+            <p className="label-caps mb-3" style={{ color: '#C17A3B' }}>NILAI KAMI</p>
+            <h2 className="headline-md">komitmen kami</h2>
+          </div>
+
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: 24,
+          }} className="commit-grid">
             {[
               {
-                name: 'Andi Prasetyo',
-                role: 'Founder & Head Roaster',
-                bio: 'Seorang pecinta kopi yang telah mendalami seni roasting selama lebih dari 10 tahun. Perjalanannya dimulai dari warung kopi kecil di Yogyakarta.',
+                icon: '🌿',
+                overline: 'SINGLE ORIGIN',
+                title: 'Kami tau persis kopimu dari mana',
+                desc: 'Setiap produk kami mencantumkan daerah asal, ketinggian kebun, dan proses pasca panen secara transparan.',
               },
               {
-                name: 'Sari Wulandari',
-                role: 'Co-Founder & Green Bean Sourcer',
-                bio: 'Ahli dalam sourcing biji kopi berkualitas tinggi langsung dari petani di seluruh Nusantara. Berkomitmen pada perdagangan yang adil.',
+                icon: '🔥',
+                overline: 'FRESH ROASTED',
+                title: 'Dipanggang setelah pesananmu masuk',
+                desc: 'Tidak ada stok lama. Tidak ada kopi yang duduk berminggu-minggu di rak. Selalu segar.',
               },
-            ].map((person) => (
-              <div key={person.name} className="bg-white rounded-2xl p-6 sm:p-8 border border-[#E8DDD0]">
-                <div className="w-20 h-20 rounded-full bg-[#E8DDD0] mx-auto mb-4 overflow-hidden">
-                  <img
-                    src={`https://placehold.co/160x160/3B1F0E/F5ECD7?text=${person.name.split(' ')[0]}`}
-                    alt={person.name}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <h3 className="font-serif text-lg text-[#1A1A1A] text-center mb-1">{person.name}</h3>
-                <p className="text-xs text-[#C17A3B] text-center font-medium tracking-wider uppercase mb-3">
-                  {person.role}
-                </p>
-                <p className="text-sm text-gray-600 text-center leading-relaxed">{person.bio}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Values */}
-      <section
-        ref={valuesRef as React.RefObject<HTMLElement>}
-        className={`bg-[#3B1F0E] text-[#F5ECD7] py-16 sm:py-24 px-4 sm:px-6 lg:px-10 transition-all duration-1000 ${
-          valuesVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
-        }`}
-      >
-        <div className="max-w-5xl mx-auto">
-          <h2 className="font-serif text-3xl sm:text-4xl text-center mb-12">
-            Nilai Kami
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-            {values.map((value) => (
+              {
+                icon: '📦',
+                overline: 'VAKUM SEALED',
+                title: 'Kesegaran terjaga hingga ke tanganmu',
+                desc: 'Dikemas dengan one-way valve agar CO₂ keluar tapi oksigen tidak masuk. Standar specialty coffee.',
+              },
+            ].map((val, i) => (
               <div
-                key={value.title}
-                className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 sm:p-8 border border-[#F5ECD7]/10 hover:border-[#C17A3B]/30 transition-all duration-300"
+                key={val.overline}
+                style={{
+                  background: '#F5ECD7',
+                  border: '1px solid #E8E3DA',
+                  borderRadius: '1rem',
+                  padding: '32px',
+                  opacity: commitVisible ? 1 : 0,
+                  transform: commitVisible ? 'none' : 'translateY(24px)',
+                  transition: `opacity 0.7s ease ${i * 0.15}s, transform 0.7s ease ${i * 0.15}s`,
+                }}
               >
-                <span className="text-4xl mb-4 block">{value.icon}</span>
-                <h3 className="font-serif text-xl mb-3">{value.title}</h3>
-                <p className="text-sm text-[#F5ECD7]/70 leading-relaxed">{value.description}</p>
+                <div style={{ fontSize: 32, marginBottom: 16 }}>{val.icon}</div>
+                <p className="label-caps mb-3" style={{ color: '#C17A3B' }}>{val.overline}</p>
+                <h3 className="headline-sm mb-3" style={{ fontSize: '20px' }}>{val.title}</h3>
+                <p className="body-md" style={{ color: '#414844', fontSize: '15px' }}>{val.desc}</p>
               </div>
             ))}
           </div>
@@ -216,6 +398,18 @@ export default function AboutPage() {
       </section>
 
       <Footer />
+
+      <style>{`
+        @media (max-width: 768px) {
+          .story-grid { grid-template-columns: 1fr !important; }
+          .origins-grid { grid-template-columns: 1fr !important; }
+          .commit-grid { grid-template-columns: 1fr !important; }
+        }
+        @media (max-width: 1024px) {
+          .origins-grid { grid-template-columns: repeat(2, 1fr) !important; }
+          .commit-grid { grid-template-columns: repeat(2, 1fr) !important; }
+        }
+      `}</style>
     </main>
   )
 }

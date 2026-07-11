@@ -100,7 +100,7 @@ export default function OrderForm() {
           <option value="">-- Pilih produk --</option>
           {products.map((p) => (
             <option key={p.id} value={p.id}>
-              {p.name} — Rp {p.price.toLocaleString('id-ID')}
+              {p.name} — Rp {p.sizes[0].price.toLocaleString('id-ID')}
             </option>
           ))}
         </select>

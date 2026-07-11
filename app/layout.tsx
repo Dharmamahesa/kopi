@@ -6,18 +6,27 @@ const playfair = Playfair_Display({
   variable: '--font-playfair',
   subsets: ['latin'],
   display: 'swap',
+  weight: ['400', '600', '700'],
+  style: ['normal', 'italic'],
 })
 
 const inter = Inter({
   variable: '--font-inter',
   subsets: ['latin'],
   display: 'swap',
+  weight: ['400', '500', '600'],
 })
 
 export const metadata: Metadata = {
-  title: 'Kopi Nusantara — Kopi Artisan Indonesia',
+  title: 'Toko Kopi Jaya Lestari — Roastery Lereng Arjuno, Prigen 875 MDPL',
   description:
-    'Kopi single origin Indonesia, dipanggang tangan dengan penuh cinta. Dari kebun ke cangkirmu.',
+    'Biji kopi single origin Nusantara, dipanggang kecil per batch di roastery kami di Hutan Cempaka, Prigen, Pasuruan. Dikirim segar langsung ke pintumu.',
+  keywords: ['kopi single origin', 'kopi arabika', 'kopi robusta', 'roastery prigen', 'kopi artisan indonesia'],
+  openGraph: {
+    title: 'Toko Kopi Jaya Lestari — Roastery Lereng Arjuno',
+    description: 'Kopi single origin Nusantara, dipanggang segar per pesanan. Dari lereng Arjuno, 875 MDPL.',
+    type: 'website',
+  },
 }
 
 export default function RootLayout({

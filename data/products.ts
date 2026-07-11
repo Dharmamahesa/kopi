@@ -1,99 +1,163 @@
+export type RoastLevel = 'light' | 'medium' | 'medium-dark' | 'dark'
+export type CoffeeType = 'arabika' | 'robusta' | 'blend'
+
+export type ProductSize = {
+  weight: '100g' | '200g' | '500g'
+  price: number
+}
+
 export type Product = {
   id: string
-  category: string
-  subcategory?: string
+  slug: string
+  category: string          // Origin label-caps, e.g. "TORAJA · SULAWESI"
+  region: string            // Short region for filter, e.g. "Sulawesi"
   name: string
-  price: number
-  oldPrice?: number
-  origin: string
-  roast: 'light' | 'medium' | 'dark'
-  type: 'arabika' | 'robusta' | 'blend'
+  tastingNotes: string      // 2-3 words
   description: string
+  roast: RoastLevel
+  type: CoffeeType
+  sizes: ProductSize[]
+  oldPrice?: number         // discount on default size
+  altitude?: string
   image: string
+  isBundle?: boolean
 }
 
 export const products: Product[] = [
   {
     id: '1',
-    category: 'TORAJA',
+    slug: 'toraja-arabika',
+    category: 'TORAJA · SULAWESI',
+    region: 'Sulawesi',
     name: 'Toraja Arabika',
-    price: 75000,
-    origin: 'Sulawesi',
+    tastingNotes: 'cokelat, fruity, rempah',
+    description:
+      'Single origin dari dataran tinggi Toraja. Dikenal dengan karakter cokelat yang dalam, fruity yang elegan, dan sentuhan rempah khas Sulawesi.',
     roast: 'medium',
     type: 'arabika',
-    description: 'Fruity, cokelat, dan sedikit rempah khas Toraja.',
-    image: 'https://placehold.co/400x533/3B1F0E/F5ECD7?text=Toraja',
+    altitude: '1400–1800 MDPL',
+    sizes: [
+      { weight: '100g', price: 40000 },
+      { weight: '200g', price: 75000 },
+      { weight: '500g', price: 175000 },
+    ],
+    image: '/images/toraja.jpg',
   },
   {
     id: '2',
-    category: 'GAYO',
-    subcategory: 'DARK ROAST',
-    name: 'Gayo Aceh Dark',
-    price: 80000,
-    origin: 'Aceh',
+    slug: 'gayo-aceh',
+    category: 'GAYO · ACEH',
+    region: 'Aceh',
+    name: 'Gayo Aceh',
+    tastingNotes: 'bold, smoky, full body',
+    description:
+      'Kopi Gayo dataran tinggi Aceh. Bold dan smoky dengan full body yang memuaskan — cocok untuk pour over atau french press.',
     roast: 'dark',
     type: 'arabika',
-    description: 'Bold, smoky, dan full body dari dataran tinggi Gayo.',
-    image: 'https://placehold.co/400x533/4A2512/F5ECD7?text=Gayo',
+    altitude: '1200–1700 MDPL',
+    sizes: [
+      { weight: '100g', price: 42000 },
+      { weight: '200g', price: 80000 },
+      { weight: '500g', price: 185000 },
+    ],
+    image: '/images/gayo.jpg',
   },
   {
     id: '3',
-    category: 'BUNDLE',
-    subcategory: 'HEMAT',
-    name: 'Paket Nusantara',
-    price: 180000,
-    oldPrice: 220000,
-    origin: 'Indonesia',
-    roast: 'medium',
-    type: 'blend',
-    description: 'Koleksi 3 kopi terbaik Nusantara dalam satu paket.',
-    image: 'https://placehold.co/400x533/2C1A0A/F5ECD7?text=Bundle',
+    slug: 'flores-bajawa',
+    category: 'FLORES · NTT',
+    region: 'NTT',
+    name: 'Flores Bajawa',
+    tastingNotes: 'floral, cerah, sweet',
+    description:
+      'Dari lereng Gunung Inerie, Bajawa. Karakter floral dan bright yang membuatnya unik di antara kopi Nusantara — aftertaste manis yang panjang.',
+    roast: 'light',
+    type: 'arabika',
+    altitude: '1000–1500 MDPL',
+    sizes: [
+      { weight: '100g', price: 45000 },
+      { weight: '200g', price: 85000 },
+      { weight: '500g', price: 195000 },
+    ],
+    image: '/images/flores.jpg',
   },
   {
     id: '4',
-    category: 'FLORES',
-    subcategory: 'LIGHT ROAST',
-    name: 'Flores Bajawa',
-    price: 85000,
-    origin: 'NTT',
-    roast: 'light',
+    slug: 'bali-kintamani',
+    category: 'KINTAMANI · BALI',
+    region: 'Bali',
+    name: 'Bali Kintamani',
+    tastingNotes: 'citrusy, clean, bright',
+    description:
+      'Arabika dari lereng Gunung Batur, Kintamani. Karakter citrusy yang bersih dengan keasaman yang menyegarkan — favorit cold brew.',
+    roast: 'medium',
     type: 'arabika',
-    description: 'Floral, cerah, dan sweet aftertaste khas Bajawa.',
-    image: 'https://placehold.co/400x533/5C2E10/F5ECD7?text=Flores',
+    altitude: '900–1500 MDPL',
+    sizes: [
+      { weight: '100g', price: 48000 },
+      { weight: '200g', price: 90000 },
+      { weight: '500g', price: 210000 },
+    ],
+    image: '/images/bali.jpg',
   },
   {
     id: '5',
-    category: 'JAVA',
+    slug: 'java-robusta',
+    category: 'JAVA · JAWA TIMUR',
+    region: 'Jawa',
     name: 'Java Robusta',
-    price: 60000,
-    origin: 'Jawa Timur',
+    tastingNotes: 'earthy, bold, espresso',
+    description:
+      'Robusta pilihan dari Jawa Timur. Earthy dan bold — karakter sempurna untuk espresso atau kopi susu yang kuat dengan body tebal.',
     roast: 'medium',
     type: 'robusta',
-    description: 'Earthy, bold, dan cocok untuk espresso.',
-    image: 'https://placehold.co/400x533/3B1F0E/F5ECD7?text=Java',
-  },
-  {
-    id: '6',
-    category: 'BALI',
-    subcategory: 'MEDIUM',
-    name: 'Bali Kintamani',
-    price: 90000,
-    origin: 'Bali',
-    roast: 'medium',
-    type: 'arabika',
-    description: 'Citrusy, clean, dan bright dari lereng Gunung Batur.',
-    image: 'https://placehold.co/400x533/4A2512/F5ECD7?text=Bali',
-  },
-  {
-    id: '7',
-    category: 'BLEND',
-    name: 'Sumatra House Blend',
-    price: 70000,
-    oldPrice: 85000,
-    origin: 'Sumatera',
-    roast: 'medium',
-    type: 'blend',
-    description: 'Balanced, smooth, dan cocok untuk semua metode seduh.',
-    image: 'https://placehold.co/400x533/2C1A0A/F5ECD7?text=Blend',
+    altitude: '600–900 MDPL',
+    sizes: [
+      { weight: '100g', price: 32000 },
+      { weight: '200g', price: 60000 },
+      { weight: '500g', price: 140000 },
+    ],
+    image: '/images/java.jpg',
   },
 ]
+
+export const bundles: Product[] = [
+  {
+    id: 'b1',
+    slug: 'paket-jelajah-nusantara',
+    category: 'PAKET BUNDLE',
+    region: 'Indonesia',
+    name: 'Paket Jelajah Nusantara',
+    tastingNotes: '4 origin, 100g each',
+    description:
+      'Koleksi 4 single origin terbaik kami dalam satu kotak — Toraja, Gayo, Flores, dan Kintamani. Sempurna untuk hadiah atau eksplorasi rasa.',
+    roast: 'medium',
+    type: 'blend',
+    sizes: [
+      { weight: '100g', price: 275000 },
+    ],
+    oldPrice: 320000,
+    image: '/images/bundle-nusantara.jpg',
+    isBundle: true,
+  },
+  {
+    id: 'b2',
+    slug: 'paket-duo-arjuno',
+    category: 'PAKET BUNDLE',
+    region: 'Indonesia',
+    name: 'Paket Duo Arjuno',
+    tastingNotes: '2 pilihan, 200g each',
+    description:
+      'Dua varian pilihan kamu, masing-masing 200g. Pilih kombinasimu sendiri — biji atau bubuk, sesuai preferensi.',
+    roast: 'medium',
+    type: 'blend',
+    sizes: [
+      { weight: '200g', price: 140000 },
+    ],
+    oldPrice: 160000,
+    image: '/images/bundle-duo.jpg',
+    isBundle: true,
+  },
+]
+
+export const allProducts = [...products, ...bundles]

@@ -1,80 +1,210 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { ChevronDown, Search, ShoppingBag, User, Menu, X } from 'lucide-react'
-import MobileMenu from './MobileMenu'
+import { usePathname } from 'next/navigation'
+import { ShoppingBag, Menu, X, MessageCircle } from 'lucide-react'
 
 const navLinks = [
-  { label: 'produk', href: '/products' },
-  { label: 'tentang', href: '/about' },
-  { label: 'jurnal', href: '#' },
-  { label: 'pesan', href: '/order' },
+  { href: '/products', label: 'Produk' },
+  { href: '/about', label: 'Tentang' },
+  { href: '/about#proses', label: 'Proses' },
+  { href: '/order', label: 'Pesan' },
 ]
 
-export default function Navbar() {
-  const [mobileOpen, setMobileOpen] = useState(false)
+export default function Navbar({ transparent = false }: { transparent?: boolean }) {
+  const [scrolled, setScrolled] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const pathname = usePathname()
+
+  useEffect(() => {
+    if (!transparent) return
+    const onScroll = () => setScrolled(window.scrollY > 60)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [transparent])
+
+  const isLight = !transparent || scrolled
 
   return (
     <>
-      <nav className="absolute left-0 right-0 z-30 top-[41px] md:top-[45px]">
-        <div className="flex items-center justify-between px-4 sm:px-6 lg:px-10 py-4">
+      {/* ── Main Navbar ── */}
+      <header
+        className="fixed top-0 left-0 right-0 z-50 transition-all duration-500"
+        style={{
+          background: isLight
+            ? 'rgba(250,247,242,0.95)'
+            : 'transparent',
+          backdropFilter: isLight ? 'blur(12px)' : 'none',
+          borderBottom: isLight ? '1px solid #E8E3DA' : 'none',
+          // account for announcement bar height (~36px)
+          top: '36px',
+        }}
+      >
+        <nav className="container-jl flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="font-serif tracking-[0.25em] text-white text-sm sm:text-base uppercase">
-            KOPI NUSANTARA
+          <Link href="/" className="flex items-center gap-3 no-underline" style={{ textDecoration: 'none' }}>
+            {/* Hexagon SVG */}
+            <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+              <polygon
+                points="18,2 32,10 32,26 18,34 4,26 4,10"
+                fill={isLight ? '#1B4332' : '#F5ECD7'}
+                stroke="none"
+              />
+              <text
+                x="18" y="23"
+                textAnchor="middle"
+                fontSize="13"
+                fontWeight="700"
+                fontFamily="serif"
+                fill={isLight ? '#F5ECD7' : '#1B4332'}
+              >K</text>
+            </svg>
+            <div>
+              <span
+                className="block label-caps"
+                style={{
+                  color: isLight ? '#414844' : 'rgba(245,236,215,0.7)',
+                  fontSize: '9px',
+                  letterSpacing: '0.18em',
+                }}
+              >
+                TOKO KOPI
+              </span>
+              <span
+                style={{
+                  fontFamily: 'var(--font-playfair), serif',
+                  fontSize: '16px',
+                  fontWeight: 600,
+                  color: isLight ? '#1A1C1A' : '#F5ECD7',
+                  lineHeight: 1,
+                }}
+              >
+                Jaya Lestari
+              </span>
+            </div>
           </Link>
 
-          {/* Center nav links — hidden on mobile */}
+          {/* Center nav */}
           <div className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
               <Link
-                key={link.label}
+                key={link.href}
                 href={link.href}
-                className="group relative text-sm text-white/90 hover:text-white transition-colors duration-300"
+                className="label-caps transition-colors duration-200 no-underline"
+                style={{
+                  color: isLight
+                    ? pathname === link.href ? '#1B4332' : '#414844'
+                    : pathname === link.href ? '#C17A3B' : 'rgba(245,236,215,0.8)',
+                  textDecoration: 'none',
+                }}
               >
                 {link.label}
-                <span className="absolute left-0 -bottom-1 w-0 h-[1px] bg-white transition-all duration-300 group-hover:w-full" />
               </Link>
             ))}
           </div>
 
           {/* Right icons */}
-          <div className="flex items-center gap-1 sm:gap-2">
-            {/* Currency selector — hidden on mobile */}
-            <div className="hidden md:flex items-center gap-1 text-white text-sm mr-2 cursor-pointer hover:opacity-80 transition-opacity">
-              <div className="flex flex-col w-6 h-4 rounded-sm overflow-hidden border border-white/20">
-                <div className="h-1/2 bg-red-600" />
-                <div className="h-1/2 bg-white" />
-              </div>
-              <span className="ml-1 text-xs">IDR Rp</span>
-              <ChevronDown size={14} className="opacity-60" />
-            </div>
-
-            <div className="hidden md:block w-px h-5 bg-white/30 mx-2" />
-
-            <button className="hidden sm:flex p-2 text-white/80 hover:text-white transition-colors" aria-label="Akun">
-              <User size={20} />
-            </button>
-            <button className="p-2 text-white/80 hover:text-white transition-colors" aria-label="Cari">
-              <Search size={20} />
-            </button>
-            <button className="p-2 text-white/80 hover:text-white transition-colors" aria-label="Keranjang">
+          <div className="flex items-center gap-4">
+            <a
+              href="https://wa.me/6281234567890"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden md:flex items-center gap-2 btn-outline-forest transition-all"
+              style={{
+                padding: '8px 16px',
+                fontSize: '11px',
+                borderColor: isLight ? '#1B4332' : 'rgba(245,236,215,0.5)',
+                color: isLight ? '#1B4332' : '#F5ECD7',
+              }}
+            >
+              <MessageCircle size={13} />
+              WhatsApp
+            </a>
+            <button
+              aria-label="Shopping bag"
+              className="p-1"
+              style={{ color: isLight ? '#1A1C1A' : '#F5ECD7' }}
+            >
               <ShoppingBag size={20} />
             </button>
-
-            {/* Hamburger — visible below md */}
+            {/* Hamburger */}
             <button
-              className="md:hidden p-2 text-white/80 hover:text-white transition-colors"
-              onClick={() => setMobileOpen(!mobileOpen)}
-              aria-label="Menu"
+              aria-label="Toggle menu"
+              onClick={() => setMenuOpen(true)}
+              className="md:hidden p-1"
+              style={{ color: isLight ? '#1A1C1A' : '#F5ECD7' }}
             >
-              {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+              <Menu size={22} />
             </button>
           </div>
-        </div>
-      </nav>
+        </nav>
+      </header>
 
-      <MobileMenu isOpen={mobileOpen} onClose={() => setMobileOpen(false)} links={navLinks} />
+      {/* ── Mobile Menu Overlay ── */}
+      <div
+        className="fixed inset-0 z-[100] flex flex-col transition-all duration-500 md:hidden"
+        style={{
+          background: '#1B4332',
+          opacity: menuOpen ? 1 : 0,
+          pointerEvents: menuOpen ? 'all' : 'none',
+          transform: menuOpen ? 'translateX(0)' : 'translateX(100%)',
+        }}
+      >
+        <div className="flex justify-between items-center p-6">
+          <span
+            style={{
+              fontFamily: 'var(--font-playfair), serif',
+              fontSize: '18px',
+              fontWeight: 600,
+              color: '#F5ECD7',
+            }}
+          >
+            Jaya Lestari
+          </span>
+          <button
+            aria-label="Close menu"
+            onClick={() => setMenuOpen(false)}
+            style={{ color: '#F5ECD7' }}
+          >
+            <X size={24} />
+          </button>
+        </div>
+
+        <div className="flex flex-col items-center justify-center flex-1 gap-10">
+          {navLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              onClick={() => setMenuOpen(false)}
+              style={{
+                fontFamily: 'var(--font-playfair), serif',
+                fontSize: '32px',
+                fontWeight: 600,
+                color: '#F5ECD7',
+                textDecoration: 'none',
+              }}
+            >
+              {link.label}
+            </Link>
+          ))}
+          <a
+            href="https://wa.me/6281234567890"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-gold mt-4"
+          >
+            <MessageCircle size={16} />
+            Pesan via WhatsApp
+          </a>
+        </div>
+
+        <div className="p-8 text-center">
+          <p className="label-caps" style={{ color: 'rgba(245,236,215,0.4)' }}>
+            ROASTERY · HUTAN CEMPAKA · PRIGEN · 875 MDPL
+          </p>
+        </div>
+      </div>
     </>
   )
 }
