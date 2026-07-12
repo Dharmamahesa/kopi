@@ -1,9 +1,10 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { ShoppingBag, Menu, X, MessageCircle } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Menu, X, MessageCircle } from 'lucide-react'
+import { LogoBranchIcon } from './illustrations/Botanicals'
 
 const navLinks = [
   { href: '/products', label: 'Produk' },
@@ -12,151 +13,129 @@ const navLinks = [
   { href: '/order',    label: 'Pesan' },
 ]
 
-export default function Navbar({ transparent = false }: { transparent?: boolean }) {
-  const [scrolled,  setScrolled]  = useState(false)
-  const [menuOpen,  setMenuOpen]  = useState(false)
+export default function Navbar() {
   const pathname = usePathname()
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
 
   useEffect(() => {
-    if (!transparent) return
-    const onScroll = () => setScrolled(window.scrollY > 60)
+    const onScroll = () => setScrolled(window.scrollY > 20)
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
-  }, [transparent])
-
-  const isLight = !transparent || scrolled
+  }, [])
 
   return (
     <>
-      {/* ── Vertical Japanese sidebar label ── */}
-      <span className="vertical-label">
-        TOKO KOPI JAYA LESTARI&nbsp;·&nbsp;PRIGEN&nbsp;·&nbsp;875 MDPL
-      </span>
-
-      {/* ── Main Navbar ── */}
       <header
-        className="fixed left-0 right-0 z-50 transition-all duration-500"
         style={{
-          background: isLight ? 'rgba(250,247,242,0.95)' : 'transparent',
-          backdropFilter: isLight ? 'blur(12px)' : 'none',
-          borderBottom: isLight ? '1px solid #E8E3DA' : 'none',
-          top: '36px',
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 50,
+          background: '#F0EBE0',
+          borderBottom: scrolled ? '1px solid #DDD5C8' : '1px solid transparent',
+          transition: 'border-color 0.3s ease',
         }}
       >
-        <nav className="container-jl flex items-center justify-between h-16">
+        <div className="container-jl" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '68px' }}>
           {/* Logo */}
-          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none' }}>
-            <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
-              <polygon
-                points="18,2 32,10 32,26 18,34 4,26 4,10"
-                fill={isLight ? '#1B4332' : '#F5ECD7'}
-              />
-              <text x="18" y="23" textAnchor="middle" fontSize="13" fontWeight="700"
-                fontFamily="serif" fill={isLight ? '#F5ECD7' : '#1B4332'}>K</text>
-            </svg>
-            <div>
-              <span className="block label-caps" style={{
-                color: isLight ? '#414844' : 'rgba(245,236,215,0.6)',
-                fontSize: '9px', letterSpacing: '0.18em',
-              }}>TOKO KOPI</span>
-              <span style={{
-                fontFamily: 'var(--font-playfair), serif',
-                fontSize: '16px', fontWeight: 600,
-                color: isLight ? '#1A1C1A' : '#F5ECD7', lineHeight: 1,
-              }}>Jaya Lestari</span>
-            </div>
+          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
+            <LogoBranchIcon size={26} color="#3D6B52" />
+            <span style={{
+              fontFamily: 'var(--font-playfair), serif',
+              fontSize: '18px',
+              fontWeight: 600,
+              color: '#2C3E35',
+              letterSpacing: '-0.01em',
+            }}>
+              Jaya Lestari
+            </span>
           </Link>
 
-          {/* Center nav — with underline reveal */}
-          <div className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) => (
+          {/* Desktop nav */}
+          <nav style={{ display: 'flex', alignItems: 'center', gap: '32px' }} className="hidden md:flex">
+            {navLinks.map(link => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="nav-link label-caps"
-                style={{
-                  color: isLight
-                    ? pathname === link.href ? '#1B4332' : '#414844'
-                    : pathname === link.href ? '#C17A3B' : 'rgba(245,236,215,0.75)',
-                }}
+                className={`nav-link${pathname === link.href ? ' nav-link-active' : ''}`}
               >
                 {link.label}
               </Link>
             ))}
-          </div>
-
-          {/* Right */}
-          <div className="flex items-center gap-4">
             <a
               href="https://wa.me/6281234567890"
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden md:inline-flex btn-outline-forest items-center gap-2"
-              style={{
-                padding: '8px 16px', fontSize: '11px',
-                borderColor: isLight ? '#1B4332' : 'rgba(245,236,215,0.4)',
-                color: isLight ? '#1B4332' : '#F5ECD7',
-              }}
+              className="nav-link"
+              style={{ color: '#3D6B52', fontWeight: 500 }}
             >
-              <MessageCircle size={13} />
-              WhatsApp
+              <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                <MessageCircle size={14} />
+                WhatsApp
+              </span>
             </a>
-            <button aria-label="Shopping bag" className="p-1"
-              style={{ color: isLight ? '#1A1C1A' : '#F5ECD7', background: 'none', border: 'none', cursor: 'pointer' }}>
-              <ShoppingBag size={20} />
-            </button>
-            <button
-              aria-label="Toggle menu"
-              onClick={() => setMenuOpen(true)}
-              className="md:hidden p-1"
-              style={{ color: isLight ? '#1A1C1A' : '#F5ECD7', background: 'none', border: 'none', cursor: 'pointer' }}
-            >
-              <Menu size={22} />
-            </button>
-          </div>
-        </nav>
+          </nav>
+
+          {/* Mobile hamburger */}
+          <button
+            onClick={() => setMenuOpen(true)}
+            className="md:hidden"
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#2C3E35', padding: 4 }}
+            aria-label="Buka menu"
+          >
+            <Menu size={22} />
+          </button>
+        </div>
       </header>
 
-      {/* ── Mobile overlay ── */}
-      <div
-        className="fixed inset-0 z-[100] flex flex-col md:hidden"
-        style={{
-          background: '#1B4332',
-          opacity: menuOpen ? 1 : 0,
-          pointerEvents: menuOpen ? 'all' : 'none',
-          transform: menuOpen ? 'translateX(0)' : 'translateX(100%)',
-          transition: 'opacity 0.4s ease, transform 0.5s cubic-bezier(0.23,1,0.32,1)',
-        }}
-      >
-        <div className="flex justify-between items-center p-6">
-          <span style={{ fontFamily: 'var(--font-playfair), serif', fontSize: 18, fontWeight: 600, color: '#F5ECD7' }}>
+      {/* Mobile menu overlay */}
+      <div style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 100,
+        background: '#F0EBE0',
+        display: 'flex',
+        flexDirection: 'column',
+        padding: '24px',
+        opacity: menuOpen ? 1 : 0,
+        pointerEvents: menuOpen ? 'all' : 'none',
+        transform: menuOpen ? 'translateX(0)' : 'translateX(100%)',
+        transition: 'opacity 0.35s ease, transform 0.4s cubic-bezier(0.23,1,0.32,1)',
+      }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 48 }}>
+          <span style={{ fontFamily: 'var(--font-playfair), serif', fontSize: 20, fontWeight: 600, color: '#2C3E35' }}>
             Jaya Lestari
           </span>
-          <button onClick={() => setMenuOpen(false)} style={{ color: '#F5ECD7', background: 'none', border: 'none', cursor: 'pointer' }}>
+          <button onClick={() => setMenuOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#2C3E35', padding: 4 }}>
             <X size={24} />
           </button>
         </div>
-        <div className="flex flex-col items-center justify-center flex-1 gap-10">
-          {navLinks.map((link) => (
-            <Link key={link.href} href={link.href} onClick={() => setMenuOpen(false)}
-              style={{ fontFamily: 'var(--font-playfair), serif', fontSize: 32, fontWeight: 600, color: '#F5ECD7', textDecoration: 'none' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
+          {navLinks.map(link => (
+            <Link
+              key={link.href}
+              href={link.href}
+              onClick={() => setMenuOpen(false)}
+              style={{ fontFamily: 'var(--font-playfair), serif', fontSize: 28, fontWeight: 400, color: '#2C3E35', textDecoration: 'none' }}
+            >
               {link.label}
             </Link>
           ))}
-          <a href="https://wa.me/6281234567890" target="_blank" rel="noopener noreferrer" className="btn-gold mt-4">
+        </div>
+        <div style={{ marginTop: 'auto' }}>
+          <a
+            href="https://wa.me/6281234567890"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-sage"
+          >
             <MessageCircle size={16} />
             Pesan via WhatsApp
           </a>
-        </div>
-        {/* Hanko stamp in corner */}
-        <div style={{ padding: '0 32px 32px', display: 'flex', justifyContent: 'flex-end' }}>
-          <div className="hanko-stamp">
-            <span>純{'\n'}JAYA{'\n'}LESTARI</span>
-          </div>
-        </div>
-        <div className="p-8 text-center">
-          <p className="label-caps" style={{ color: 'rgba(245,236,215,0.35)' }}>
-            ROASTERY · HUTAN CEMPAKA · PRIGEN · 875 MDPL
+          <p style={{ marginTop: 16, fontSize: 12, color: '#8FAF97', letterSpacing: '0.15em', textTransform: 'uppercase', fontFamily: 'var(--font-inter), sans-serif' }}>
+            ROASTERY · PRIGEN · 875 MDPL
           </p>
         </div>
       </div>

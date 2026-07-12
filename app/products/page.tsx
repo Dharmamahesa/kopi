@@ -1,323 +1,171 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import AnnouncementBar from '@/components/AnnouncementBar'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
-import RoastChip from '@/components/RoastChip'
-import { products } from '@/data/products'
-import type { RoastLevel, CoffeeType } from '@/data/products'
-import { MessageCircle } from 'lucide-react'
+import ProductCard from '@/components/ProductCard'
+import { products, bundles } from '@/data/products'
+import { BotanicalBranch, ScatteredBeans } from '@/components/illustrations/Botanicals'
 
-type SizeFilter = '100g' | '200g' | '500g' | null
-type TypeFilter = CoffeeType | null
-type RoastFilter = RoastLevel | null
+type TypeFilter  = 'Semua' | 'arabika' | 'robusta' | 'blend'
+type RoastFilter = 'Semua' | 'light' | 'medium' | 'dark'
+type WeightFilter = 'Semua' | '100g' | '200g' | '500g'
 
-function formatPrice(p: number) {
-  return 'Rp ' + p.toLocaleString('id-ID')
-}
+const allProducts = [...products, ...bundles]
 
-export default function KatalogPage() {
-  const [sizeFilter, setSizeFilter] = useState<SizeFilter>(null)
-  const [typeFilter, setTypeFilter] = useState<TypeFilter>(null)
-  const [roastFilter, setRoastFilter] = useState<RoastFilter>(null)
-  const [selectedSizes, setSelectedSizes] = useState<Record<string, number>>({})
+export default function ProductsPage() {
+  const [typeFilter,  setTypeFilter]  = useState<TypeFilter>('Semua')
+  const [roastFilter, setRoastFilter] = useState<RoastFilter>('Semua')
+  const [weightFilter, setWeightFilter] = useState<WeightFilter>('Semua')
 
   const filtered = useMemo(() => {
-    return products.filter((p) => {
-      if (typeFilter && p.type !== typeFilter) return false
-      if (roastFilter && p.roast !== roastFilter) return false
-      if (sizeFilter && !p.sizes.find((s) => s.weight === sizeFilter)) return false
+    return allProducts.filter(p => {
+      if (typeFilter !== 'Semua' && p.type !== typeFilter) return false
+      if (roastFilter !== 'Semua' && p.roast !== roastFilter && !p.roast.startsWith(roastFilter)) return false
+      if (weightFilter !== 'Semua' && !p.sizes.some(s => s.weight === weightFilter)) return false
       return true
     })
-  }, [sizeFilter, typeFilter, roastFilter])
-
-  const getSelectedSizeIdx = (id: string, defaultIdx: number) =>
-    selectedSizes[id] !== undefined ? selectedSizes[id] : defaultIdx
-
-  const setSize = (id: string, idx: number) =>
-    setSelectedSizes((prev) => ({ ...prev, [id]: idx }))
+  }, [typeFilter, roastFilter, weightFilter])
 
   return (
-    <main className="flex-1">
-      <AnnouncementBar />
+    <div style={{ background: '#F0EBE0', minHeight: '100vh' }}>
       <Navbar />
 
       {/* ── Hero Strip ── */}
-      <section
-        className="film-grain relative overflow-hidden"
-        style={{
-          background: '#1B4332',
-          paddingTop: 120,
-          paddingBottom: 80,
-          marginTop: 72, // navbar height
-        }}
-      >
-        {/* Vignette */}
-        <div style={{
-          position: 'absolute', inset: 0,
-          background: 'radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.5) 100%)',
-          zIndex: 1, pointerEvents: 'none',
-        }} />
-        {/* Light leak */}
-        <div style={{
-          position: 'absolute', inset: 0, zIndex: 2, pointerEvents: 'none',
-          background: 'radial-gradient(ellipse 55% 45% at 0% 0%, rgba(193,122,59,0.18) 0%, transparent 70%)',
-        }} />
-        {/* Letterbox top */}
-        <div style={{
-          position: 'absolute', top: 0, left: 0, right: 0, height: 40,
-          background: '#1B4332', zIndex: 10,
-        }} />
-        {/* Letterbox bottom */}
-        <div style={{
-          position: 'absolute', bottom: 0, left: 0, right: 0, height: 40,
-          background: '#1B4332', zIndex: 10,
-        }} />
+      <section style={{ background: '#FAF6EF', paddingTop: 112, paddingBottom: 64, textAlign: 'center', position: 'relative', overflow: 'hidden', borderBottom: '1px solid #DDD5C8' }}>
+        {/* Botanical branch decorations */}
+        <div style={{ position: 'absolute', top: 0, left: -40, opacity: 0.15, pointerEvents: 'none' }}>
+          <BotanicalBranch width={200} height={280} opacity={1} />
+        </div>
+        <div style={{ position: 'absolute', top: 0, right: -40, opacity: 0.15, transform: 'scaleX(-1)', pointerEvents: 'none' }}>
+          <BotanicalBranch width={200} height={280} opacity={1} />
+        </div>
 
-        <div className="container-jl" style={{ position: 'relative', zIndex: 5 }}>
-          <p className="label-caps mb-4" style={{ color: '#C17A3B' }}>KATALOG LENGKAP</p>
-          <h1 className="display-lg-mobile mb-4" style={{ color: '#F5ECD7' }}>semua kopi kami</h1>
-          <p className="body-md" style={{ color: 'rgba(245,236,215,0.6)' }}>
-            single origin · small batch · fresh roasted
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          {/* Small botanical branch above text */}
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
+            <svg width="80" height="40" viewBox="0 0 80 40" fill="none" style={{ opacity: 0.4 }}>
+              <path d="M40 38 C40 30 40 22 40 12" stroke="#3D6B52" strokeWidth="1.5" strokeLinecap="round" />
+              <path d="M40 28 C30 22 22 20 15 14" stroke="#3D6B52" strokeWidth="1.5" strokeLinecap="round" />
+              <path d="M15 14 C8 8 5 2 12 2 C19 2 22 10 15 14Z" stroke="#3D6B52" strokeWidth="1.3" fill="none" />
+              <path d="M40 22 C50 16 58 14 65 8" stroke="#3D6B52" strokeWidth="1.5" strokeLinecap="round" />
+              <path d="M65 8 C72 2 75 -4 68 -4 C61 -4 58 4 65 8Z" stroke="#3D6B52" strokeWidth="1.3" fill="none" />
+            </svg>
+          </div>
+          <p className="label-overline" style={{ marginBottom: 16 }}>
+            SINGLE ORIGIN · SMALL BATCH · FRESH ROASTED
           </p>
+          <h1 style={{ fontFamily: 'var(--font-playfair), serif', fontSize: 'clamp(32px, 5vw, 56px)', fontWeight: 400, color: '#2C3E35', lineHeight: 1.25 }}>
+            Koleksi Lengkap Kami
+          </h1>
         </div>
       </section>
 
-      {/* ── Sticky Filter ── */}
-      <div
-        style={{
-          background: '#FAF7F2',
-          borderBottom: '1px solid #E8E3DA',
-          padding: '20px 0',
-          position: 'sticky',
-          top: 72,
-          zIndex: 30,
-        }}
-      >
+      {/* ── Sticky Filter Bar ── */}
+      <div style={{
+        position: 'sticky',
+        top: 68,
+        zIndex: 30,
+        background: 'rgba(240,235,224,0.96)',
+        backdropFilter: 'blur(10px)',
+        borderBottom: '1px solid #DDD5C8',
+        paddingTop: 14,
+        paddingBottom: 14,
+      }}>
         <div className="container-jl">
-          {/* Row 1 — Ukuran */}
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 10 }}>
-            <span className="label-caps" style={{ color: '#414844', alignSelf: 'center', marginRight: 4 }}>
-              Ukuran:
-            </span>
-            {(['100g', '200g', '500g'] as const).map((s) => (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
+            {/* Type */}
+            {(['Semua', 'arabika', 'robusta', 'blend'] as TypeFilter[]).map(f => (
               <button
-                key={s}
-                onClick={() => setSizeFilter(sizeFilter === s ? null : s)}
-                style={{
-                  padding: '6px 16px', borderRadius: 9999, cursor: 'pointer',
-                  fontSize: 11, fontWeight: 600, fontFamily: 'var(--font-inter)',
-                  letterSpacing: '0.1em', textTransform: 'uppercase',
-                  background: sizeFilter === s ? '#1B4332' : 'transparent',
-                  color: sizeFilter === s ? '#F5ECD7' : '#1B4332',
-                  border: '1px solid #1B4332',
-                  transition: 'all 0.2s',
-                }}
-              >{s}</button>
+                key={f}
+                className={`filter-pill${typeFilter === f ? ' active' : ''}`}
+                onClick={() => setTypeFilter(f)}
+              >
+                {f.charAt(0).toUpperCase() + f.slice(1)}
+              </button>
             ))}
-          </div>
 
-          {/* Row 2 — Jenis */}
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 10 }}>
-            <span className="label-caps" style={{ color: '#414844', alignSelf: 'center', marginRight: 4 }}>
-              Jenis:
-            </span>
-            {(['arabika', 'robusta', 'blend'] as const).map((t) => (
-              <button
-                key={t}
-                onClick={() => setTypeFilter(typeFilter === t ? null : t)}
-                style={{
-                  padding: '6px 16px', borderRadius: 9999, cursor: 'pointer',
-                  fontSize: 11, fontWeight: 600, fontFamily: 'var(--font-inter)',
-                  letterSpacing: '0.1em', textTransform: 'uppercase',
-                  background: typeFilter === t ? '#1B4332' : 'transparent',
-                  color: typeFilter === t ? '#F5ECD7' : '#1B4332',
-                  border: '1px solid #1B4332',
-                  transition: 'all 0.2s',
-                }}
-              >{t}</button>
-            ))}
-          </div>
+            <div style={{ width: 1, height: 24, background: '#DDD5C8', margin: '0 4px' }} />
 
-          {/* Row 3 — Roast */}
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            <span className="label-caps" style={{ color: '#414844', alignSelf: 'center', marginRight: 4 }}>
-              Roast:
-            </span>
-            {(['light', 'medium', 'dark'] as const).map((r) => (
+            {/* Weight */}
+            {(['100g', '200g', '500g'] as WeightFilter[]).map(f => (
               <button
-                key={r}
-                onClick={() => setRoastFilter(roastFilter === r ? null : r)}
-                style={{
-                  padding: '6px 16px', borderRadius: 9999, cursor: 'pointer',
-                  fontSize: 11, fontWeight: 600, fontFamily: 'var(--font-inter)',
-                  letterSpacing: '0.1em', textTransform: 'uppercase',
-                  background: roastFilter === r ? '#1B4332' : 'transparent',
-                  color: roastFilter === r ? '#F5ECD7' : '#1B4332',
-                  border: '1px solid #1B4332',
-                  transition: 'all 0.2s',
-                }}
-              >{r}</button>
+                key={f}
+                className={`filter-pill${weightFilter === f ? ' active' : ''}`}
+                onClick={() => setWeightFilter(prev => prev === f ? 'Semua' : f)}
+              >
+                {f}
+              </button>
             ))}
-            {(sizeFilter || typeFilter || roastFilter) && (
+
+            <div style={{ width: 1, height: 24, background: '#DDD5C8', margin: '0 4px' }} />
+
+            {/* Roast */}
+            {(['light', 'medium', 'dark'] as RoastFilter[]).map(f => (
               <button
-                onClick={() => { setSizeFilter(null); setTypeFilter(null); setRoastFilter(null) }}
-                style={{
-                  padding: '6px 16px', borderRadius: 9999, cursor: 'pointer',
-                  fontSize: 11, fontWeight: 600, fontFamily: 'var(--font-inter)',
-                  letterSpacing: '0.1em', textTransform: 'uppercase',
-                  background: 'transparent', color: '#C17A3B',
-                  border: '1px solid #C17A3B',
-                  transition: 'all 0.2s', marginLeft: 8,
-                }}
-              >Reset Filter ×</button>
-            )}
+                key={f}
+                className={`filter-pill${roastFilter === f ? ' active' : ''}`}
+                onClick={() => setRoastFilter(prev => prev === f ? 'Semua' : f)}
+              >
+                {f.charAt(0).toUpperCase() + f.slice(1)}
+              </button>
+            ))}
+
+            {/* Count */}
+            <span style={{ marginLeft: 'auto', fontSize: 13, color: '#8FAF97', fontFamily: 'var(--font-inter), sans-serif' }}>
+              {filtered.length} produk
+            </span>
           </div>
         </div>
       </div>
 
       {/* ── Product Grid ── */}
-      <section style={{ background: '#FAF7F2', paddingTop: 48, paddingBottom: 80 }}>
-        <div className="container-jl">
+      <section className="section-py" style={{ position: 'relative' }}>
+        {/* Faint scattered beans behind */}
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, pointerEvents: 'none' }}>
+          <ScatteredBeans opacity={0.06} />
+        </div>
+
+        <div className="container-jl" style={{ position: 'relative', zIndex: 1 }}>
           {filtered.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '80px 0' }}>
-              <p className="body-lg" style={{ color: '#717973' }}>
-                Tidak ada produk yang sesuai filter. Coba reset filter.
-              </p>
+              <p style={{ fontSize: 16, color: '#6B7C72' }}>Tidak ada produk yang cocok dengan filter ini.</p>
+              <button className="btn-sage" style={{ marginTop: 20 }}
+                onClick={() => { setTypeFilter('Semua'); setRoastFilter('Semua'); setWeightFilter('Semua') }}>
+                Reset Filter
+              </button>
             </div>
           ) : (
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
-                gap: 24,
-              }}
-            >
-              {filtered.map((product) => {
-                const defaultIdx = product.sizes.findIndex(s => s.weight === '200g') >= 0
-                  ? product.sizes.findIndex(s => s.weight === '200g') : 0
-                const sIdx = getSelectedSizeIdx(product.id, defaultIdx)
-                const selectedSize = product.sizes[sIdx]
-
-                const waMessage = encodeURIComponent(
-                  `Halo Kopi Jaya Lestari! Saya ingin memesan:\n\n` +
-                  `Produk: ${product.name}\n` +
-                  `Ukuran: ${selectedSize.weight}\n` +
-                  `Total: Rp ${selectedSize.price.toLocaleString('id-ID')}\n\n` +
-                  `Mohon konfirmasinya 🙏`
-                )
-
-                return (
-                  <article
-                    key={product.id}
-                    className="product-card"
-                    style={{ display: 'flex', flexDirection: 'column' }}
-                  >
-                    {/* Image */}
-                    <div
-                      className="image-cinematic rounded-t-lg overflow-hidden"
-                      style={{
-                        aspectRatio: '3/4',
-                        background: 'linear-gradient(160deg, #3B1F0E 0%, #1B4332 60%, #2C1A0A 100%)',
-                        position: 'relative',
-                      }}
-                    >
-                      {/* Bean silhouettes */}
-                      <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', opacity: 0.08 }}>
-                        {[...Array(10)].map((_, i) => (
-                          <div key={i} style={{
-                            position: 'absolute',
-                            width: 28 + (i % 4) * 8, height: 18 + (i % 3) * 5,
-                            borderRadius: '50%', background: '#C17A3B',
-                            top: `${(i * 19 + 5) % 90}%`,
-                            left: `${(i * 27 + 3) % 85}%`,
-                            transform: `rotate(${i * 37}deg)`,
-                          }} />
-                        ))}
-                      </div>
-                      {/* Origin tag */}
-                      <div style={{
-                        position: 'absolute', bottom: 12, left: 12, zIndex: 3,
-                        padding: '4px 10px', borderRadius: 4,
-                        background: 'rgba(59,31,14,0.85)',
-                      }}>
-                        <span className="label-caps" style={{ color: '#C17A3B', fontSize: '9px' }}>
-                          {product.region}
-                        </span>
-                      </div>
-                      <RoastChip roast={product.roast} className="absolute top-3 right-3 z-10" />
-                    </div>
-
-                    {/* Info */}
-                    <div style={{ padding: '16px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                      <p className="label-caps mb-1" style={{ color: '#C17A3B', fontSize: '9px' }}>
-                        {product.category}
-                      </p>
-                      <h3 className="headline-sm mb-1" style={{ fontSize: '20px' }}>
-                        {product.name}
-                      </h3>
-                      <p className="body-md mb-3" style={{ color: '#717973', fontStyle: 'italic', fontSize: '13px', flex: 1 }}>
-                        {product.tastingNotes}
-                      </p>
-
-                      {/* Weight toggle */}
-                      <div style={{ display: 'flex', gap: 6, marginBottom: 12, flexWrap: 'wrap' }}>
-                        {product.sizes.map((size, i) => (
-                          <button
-                            key={size.weight}
-                            onClick={() => setSize(product.id, i)}
-                            style={{
-                              padding: '5px 12px', borderRadius: 9999, cursor: 'pointer',
-                              fontSize: '10px', fontWeight: 600, letterSpacing: '0.08em',
-                              textTransform: 'uppercase',
-                              background: sIdx === i ? '#1B4332' : 'transparent',
-                              color: sIdx === i ? '#F5ECD7' : '#1B4332',
-                              border: '1px solid #1B4332',
-                              transition: 'all 0.2s',
-                            }}
-                          >{size.weight}</button>
-                        ))}
-                      </div>
-
-                      {/* Price */}
-                      <p className="label-caps mb-3" style={{ color: '#1B4332', fontSize: '14px' }}>
-                        {formatPrice(selectedSize.price)}
-                      </p>
-
-                      {/* WA button */}
-                      <a
-                        href={`https://wa.me/6281234567890?text=${waMessage}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="btn-primary flex items-center justify-center gap-2"
-                        style={{ padding: '10px 16px', fontSize: '11px' }}
-                      >
-                        <MessageCircle size={13} />
-                        Pesan via WA
-                      </a>
-                    </div>
-                  </article>
-                )
-              })}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}
+              className="products-grid-page">
+              {filtered.map(p => (
+                <ProductCard key={p.id} product={p} showWeightToggle />
+              ))}
             </div>
           )}
         </div>
       </section>
 
-      {/* ── Info strip ── */}
-      <section style={{ background: '#F5ECD7', padding: '32px 0', textAlign: 'center' }}>
-        <div className="container-jl">
-          <p className="label-caps mb-2" style={{ color: '#1B4332' }}>
-            SEMUA KOPI DI-ROAST SETELAH PESANAN MASUK
-          </p>
-          <p className="body-md" style={{ color: '#414844' }}>
-            Fresh guaranteed. Dikemas vakum. Pengiriman 2–3 hari kerja.
-          </p>
-        </div>
+      {/* ── CTA strip ── */}
+      <section style={{ background: '#FAF6EF', borderTop: '1px solid #DDD5C8', textAlign: 'center', padding: '56px 24px' }}>
+        <p className="label-overline" style={{ marginBottom: 12 }}>BUTUH BANTUAN MEMILIH?</p>
+        <h2 style={{ fontFamily: 'var(--font-playfair), serif', fontSize: 28, fontWeight: 400, color: '#2C3E35', marginBottom: 12 }}>
+          Hubungi Kami via WhatsApp
+        </h2>
+        <p className="body-md" style={{ marginBottom: 24, maxWidth: 400, margin: '0 auto 24px' }}>
+          Tim kami siap membantu memilih kopi yang sesuai selera & metode seduhmu.
+        </p>
+        <a href="https://wa.me/6281234567890" target="_blank" rel="noopener noreferrer" className="btn-sage">
+          Chat Sekarang
+        </a>
       </section>
 
       <Footer />
-    </main>
+
+      <style>{`
+        @media(max-width:900px){ .products-grid-page{grid-template-columns:repeat(2,1fr)!important} }
+        @media(max-width:580px){ .products-grid-page{grid-template-columns:1fr!important} }
+      `}</style>
+    </div>
   )
 }

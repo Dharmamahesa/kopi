@@ -1,396 +1,272 @@
 'use client'
 
-import AnnouncementBar from '@/components/AnnouncementBar'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
-import ProcessTimeline from '@/components/ProcessTimeline'
-import { useEffect, useRef, useState } from 'react'
+import { BotanicalBranch, BotanicalVine, LeafSprig } from '@/components/illustrations/Botanicals'
+import { useEffect, useRef } from 'react'
 
-const roastingSteps = [
+function useReveal() {
+  const ref = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const obs = new IntersectionObserver(
+      entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible') }),
+      { threshold: 0.1 }
+    )
+    el.querySelectorAll('.reveal').forEach(el => obs.observe(el))
+    return () => obs.disconnect()
+  }, [])
+  return ref
+}
+
+const processSteps = [
   {
-    number: '1',
-    title: 'Seleksi',
-    desc: 'Biji dipilih manual. Hanya grade A yang lolos ke roastery kami.',
+    n: '01',
+    title: 'Seleksi Biji',
+    desc: 'Kami hanya memilih biji kopi grade specialty dari petani mitra yang kami percaya. Setiap lot dievaluasi secara sensoris sebelum diproses.',
   },
   {
-    number: '2',
-    title: 'Roasting',
-    desc: 'Small batch. Suhu presisi. Dipantau langsung oleh roaster kami.',
+    n: '02',
+    title: 'Washing & Sorting',
+    desc: 'Biji diproses basah (wet-processed) atau natural sesuai karakteristik origin-nya. Sorting manual menghilangkan biji cacat.',
   },
   {
-    number: '3',
-    title: 'Cooling',
-    desc: 'Didinginkan cepat untuk mengunci profil rasa yang optimal.',
+    n: '03',
+    title: 'Small Batch Roasting',
+    desc: 'Dipanggang kecil 5–10 kg per batch di roaster drum kami. Profil roasting disesuaikan per origin untuk menonjolkan karakter terbaik.',
   },
   {
-    number: '4',
-    title: 'Kemas & Kirim',
-    desc: 'Dikemas vakum dalam 24 jam. Dikirim langsung ke pintumu.',
+    n: '04',
+    title: 'Dikemas & Dikirim',
+    desc: 'Dikemas dalam kantong vakum dengan one-way valve dalam 24 jam setelah roasting. Siap dikirim ke pintumu.',
   },
 ]
 
 const origins = [
-  {
-    region: 'GAYO · ACEH', name: 'Arabika Gayo',
-    desc: 'Dataran tinggi Aceh, 1200–1700 MDPL. Dikenal dengan body tebal dan keasaman sedang.',
-    roast: 'dark',
-  },
-  {
-    region: 'TORAJA · SULAWESI', name: 'Arabika Toraja',
-    desc: 'Lereng Sulawesi Selatan, 1400–1800 MDPL. Karakter fruity dan rempah yang khas.',
-    roast: 'medium',
-  },
-  {
-    region: 'FLORES · NTT', name: 'Arabika Bajawa',
-    desc: 'Kaki Gunung Inerie, 1000–1500 MDPL. Floral dan sweet aftertaste yang panjang.',
-    roast: 'light',
-  },
-  {
-    region: 'KINTAMANI · BALI', name: 'Arabika Kintamani',
-    desc: 'Lereng Gunung Batur, 900–1500 MDPL. Citrusy, clean, favorit cold brew.',
-    roast: 'medium',
-  },
-  {
-    region: 'JAVA · JAWA TIMUR', name: 'Robusta Java',
-    desc: 'Dataran Jawa Timur, 600–900 MDPL. Bold dan earthy untuk espresso terbaik.',
-    roast: 'medium',
-  },
-  {
-    region: 'SUMATERA', name: 'Arabika Sumatera',
-    desc: 'Berbagai kebun pilihan Sumatera, 800–1600 MDPL. Earthly dan herbal yang kompleks.',
-    roast: 'dark',
-  },
+  { region: 'Toraja, Sulawesi', island: 'Sulawesi', roast: 'Medium', price: 'Rp 75.000 / 200g', color: '#D6E5DB' },
+  { region: 'Gayo, Aceh',       island: 'Sumatera', roast: 'Dark',   price: 'Rp 80.000 / 200g', color: '#C8D9CE' },
+  { region: 'Flores Bajawa',     island: 'NTT',      roast: 'Light',  price: 'Rp 85.000 / 200g', color: '#E5DDD4' },
+  { region: 'Kintamani, Bali',   island: 'Bali',     roast: 'Medium', price: 'Rp 90.000 / 200g', color: '#DBE9DE' },
+  { region: 'Java, Jawa Timur',  island: 'Jawa',     roast: 'Medium', price: 'Rp 60.000 / 200g', color: '#E8E0D6' },
+  { region: 'Wamena, Papua',     island: 'Papua',    roast: 'Light',  price: 'Rp 95.000 / 200g', color: '#DDE6E0' },
 ]
 
-const roastChipColors: Record<string, { bg: string; color: string }> = {
-  light: { bg: '#F5ECD7', color: '#414844' },
-  medium: { bg: 'rgba(193,122,59,0.18)', color: '#3B1F0E' },
-  dark: { bg: '#3B1F0E', color: '#F5ECD7' },
-}
-
-function useInView(threshold = 0.1) {
-  const ref = useRef<HTMLDivElement>(null)
-  const [visible, setVisible] = useState(false)
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setVisible(true) },
-      { threshold }
-    )
-    if (ref.current) observer.observe(ref.current)
-    return () => observer.disconnect()
-  }, [threshold])
-  return { ref, visible }
-}
+const values = [
+  { icon: '🌿', title: 'Single Origin', desc: 'Setiap kopi kami berasal dari satu sumber yang jelas — kamu tahu persis dari mana kopimu berasal.' },
+  { icon: '🔥', title: 'Fresh Roasted', desc: 'Dipanggang kecil per batch, paling lambat 7 hari sebelum dikirim agar kamu mendapat cita rasa terbaik.' },
+  { icon: '📦', title: 'Vakum Sealed',  desc: 'Dikemas dengan kantong vakum one-way valve untuk menjaga kesegaran dan aroma kopi selama perjalanan.' },
+]
 
 export default function AboutPage() {
-  const { ref: storyRef, visible: storyVisible } = useInView(0.1)
-  const { ref: commitRef, visible: commitVisible } = useInView(0.1)
+  const mainRef = useReveal()
 
   return (
-    <main className="flex-1">
-      <AnnouncementBar />
-      <Navbar transparent />
+    <div ref={mainRef} style={{ background: '#F0EBE0', minHeight: '100vh' }}>
+      <Navbar />
 
-      {/* ══════════════════════════════════════════
-          HERO — Full viewport cinematic
-      ══════════════════════════════════════════ */}
-      <section
-        className="film-grain relative overflow-hidden flex flex-col items-center justify-center"
-        style={{
-          background: 'linear-gradient(160deg, #0F2419 0%, #1B4332 45%, #243B2F 80%, #1A0A03 100%)',
-          minHeight: '100vh',
-        }}
-      >
-        {/* Letterbox bars */}
-        <div style={{
-          position: 'absolute', top: 0, left: 0, right: 0, height: '10vh',
-          background: '#1B4332', zIndex: 10,
-        }} />
-        <div style={{
-          position: 'absolute', bottom: 0, left: 0, right: 0, height: '10vh',
-          background: '#1B4332', zIndex: 10,
-        }} />
-        {/* Vignette */}
-        <div style={{
-          position: 'absolute', inset: 0,
-          background: 'radial-gradient(ellipse at center, transparent 25%, rgba(0,0,0,0.65) 100%)',
-          zIndex: 2, pointerEvents: 'none',
-        }} />
-        {/* Light leaks */}
-        <div style={{
-          position: 'absolute', inset: 0, zIndex: 3, pointerEvents: 'none',
-          background: `
-            radial-gradient(ellipse 55% 45% at 0% 0%, rgba(193,122,59,0.22) 0%, transparent 70%),
-            radial-gradient(ellipse 50% 40% at 100% 100%, rgba(193,122,59,0.16) 0%, transparent 70%)
-          `,
-        }} />
-        {/* Floating bean particles */}
-        <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', opacity: 0.06, zIndex: 1 }}>
-          {[...Array(24)].map((_, i) => (
-            <div key={i} style={{
-              position: 'absolute',
-              width: 20 + (i % 5) * 10, height: 12 + (i % 4) * 6,
-              borderRadius: '50%', background: '#C17A3B',
-              top: `${(i * 13 + 8) % 95}%`,
-              left: `${(i * 17 + 5) % 92}%`,
-              transform: `rotate(${i * 47}deg)`,
-            }} />
-          ))}
+      {/* ── Hero ── */}
+      <section style={{
+        background: '#F0EBE0',
+        paddingTop: 128, paddingBottom: 80,
+        textAlign: 'center',
+        position: 'relative',
+        overflow: 'hidden',
+      }}>
+        {/* Botanical frame */}
+        <div style={{ position: 'absolute', left: '5%', top: 80, pointerEvents: 'none' }}>
+          <BotanicalBranch width={180} height={260} opacity={0.18} />
+        </div>
+        <div style={{ position: 'absolute', right: '5%', top: 80, transform: 'scaleX(-1)', pointerEvents: 'none' }}>
+          <BotanicalBranch width={180} height={260} opacity={0.18} />
         </div>
 
-        {/* Content */}
-        <div style={{ position: 'relative', zIndex: 5, textAlign: 'center', padding: '0 20px' }}>
-          <h1 className="display-lg" style={{ color: '#F5ECD7', fontStyle: 'italic', maxWidth: 700 }}>
-            dari hutan ke cangkirmu
+        <div className="container-jl" style={{ position: 'relative', zIndex: 1 }}>
+          {/* Circular botanical frame illustration */}
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 24 }}>
+            <svg width="120" height="80" viewBox="0 0 120 80" fill="none" style={{ opacity: 0.35 }}>
+              {/* Decorative arc with leaves */}
+              <path d="M10 70 C20 50 40 30 60 20 C80 30 100 50 110 70"
+                stroke="#3D6B52" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+              <path d="M60 20 C50 8 42 2 50 -2 C58 -6 64 4 60 20Z"
+                stroke="#3D6B52" strokeWidth="1.3" fill="none" />
+              <path d="M35 40 C25 30 20 22 28 18 C36 14 40 24 35 40Z"
+                stroke="#3D6B52" strokeWidth="1.3" fill="none" />
+              <path d="M85 40 C95 30 100 22 92 18 C84 14 80 24 85 40Z"
+                stroke="#3D6B52" strokeWidth="1.3" fill="none" />
+            </svg>
+          </div>
+
+          <p className="label-overline reveal" style={{ marginBottom: 16 }}>CERITA KAMI</p>
+          <h1 className="heading-hero reveal" style={{ marginBottom: 16, transitionDelay: '80ms' }}>
+            Cerita di Balik<br />Secangkir Kopi
           </h1>
+          <p className="body-lg reveal" style={{ maxWidth: 480, margin: '0 auto', transitionDelay: '160ms' }}>
+            Dari Hutan Cempaka, Prigen, ke cangkirmu.
+          </p>
         </div>
       </section>
 
-      {/* ══════════════════════════════════════════
-          BRAND STORY — Split layout
-      ══════════════════════════════════════════ */}
-      <section
-        id="cerita"
-        ref={storyRef}
-        style={{ background: '#FAF7F2', paddingTop: 96, paddingBottom: 96 }}
-      >
-        <div className="container-jl">
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: 72,
+      {/* ── Brand Story — split ── */}
+      <section style={{ background: '#FAF6EF', borderTop: '1px solid #DDD5C8', borderBottom: '1px solid #DDD5C8' }}>
+        <div className="container-jl section-py">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 64, alignItems: 'center' }}
+            className="split-grid">
+            {/* Left: photo / illustration */}
+            <div className="reveal" style={{
+              background: '#D6E5DB',
+              borderRadius: 20,
+              aspectRatio: '4/3',
+              display: 'flex',
               alignItems: 'center',
-            }}
-            className="story-grid"
-          >
-            {/* Left: cinematic photo placeholder */}
-            <div
-              className="image-cinematic rounded-xl overflow-hidden film-grain"
-              style={{
-                aspectRatio: '4/5',
-                background: 'linear-gradient(160deg, #1B4332 0%, #3B1F0E 50%, #1A0A03 100%)',
-                position: 'relative',
-                opacity: storyVisible ? 1 : 0,
-                transform: storyVisible ? 'none' : 'translateX(-24px)',
-                transition: 'opacity 0.9s ease, transform 0.9s ease',
-              }}
-            >
-              {/* Vignette */}
-              <div style={{
-                position: 'absolute', inset: 0,
-                background: 'radial-gradient(ellipse at center, transparent 35%, rgba(0,0,0,0.6) 100%)',
-                zIndex: 2,
-              }} />
-              {/* Light leak */}
-              <div style={{
-                position: 'absolute', inset: 0, zIndex: 3,
-                background: 'radial-gradient(ellipse 60% 50% at 100% 0%, rgba(193,122,59,0.25) 0%, transparent 70%)',
-              }} />
-              {/* Placeholder text */}
-              <div style={{
-                position: 'absolute', inset: 0, zIndex: 4,
-                display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-start',
-                padding: 24,
-              }}>
-                <div>
-                  <p className="label-caps mb-1" style={{ color: '#C17A3B' }}>ROASTERY INTERIOR</p>
-                  <p style={{ color: 'rgba(245,236,215,0.5)', fontSize: 12, fontStyle: 'italic' }}>
-                    Hutan Cempaka, Prigen
-                  </p>
-                </div>
-              </div>
-              {/* Bean texture */}
-              <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', opacity: 0.07 }}>
-                {[...Array(16)].map((_, i) => (
-                  <div key={i} style={{
-                    position: 'absolute',
-                    width: 36 + (i % 4) * 12, height: 22 + (i % 3) * 8,
-                    borderRadius: '50%', background: '#C17A3B',
-                    top: `${(i * 15 + 5) % 92}%`,
-                    left: `${(i * 23 + 3) % 88}%`,
-                    transform: `rotate(${i * 41}deg)`,
-                  }} />
-                ))}
+              justifyContent: 'center',
+              overflow: 'hidden',
+              position: 'relative',
+            }}>
+              {/* Illustrated kraft paper bag mockup */}
+              <svg width="200" height="240" viewBox="0 0 200 240" fill="none" style={{ opacity: 0.65 }}>
+                {/* Bag body */}
+                <path d="M50 60 C50 50 55 44 65 42 L100 38 L135 42 C145 44 150 50 150 60 L155 190 C155 200 148 208 138 208 L62 208 C52 208 45 200 45 190 Z"
+                  stroke="#3D6B52" strokeWidth="1.5" fill="#FAF6EF" />
+                {/* Bag top fold */}
+                <path d="M65 42 L100 30 L135 42" stroke="#3D6B52" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+                {/* Label area */}
+                <rect x="62" y="80" width="76" height="88" rx="8" stroke="#3D6B52" strokeWidth="1.2" fill="rgba(61,107,82,0.08)" />
+                {/* Label text lines */}
+                <path d="M75 100 L125 100" stroke="#3D6B52" strokeWidth="1" strokeLinecap="round" />
+                <path d="M80 112 L120 112" stroke="#3D6B52" strokeWidth="0.8" strokeLinecap="round" />
+                <path d="M85 122 L115 122" stroke="#3D6B52" strokeWidth="0.6" strokeLinecap="round" />
+                {/* Coffee bean illustration on label */}
+                <ellipse cx="100" cy="145" rx="14" ry="10" stroke="#3D6B52" strokeWidth="1.2" fill="none" />
+                <path d="M86 145 L114 145" stroke="#3D6B52" strokeWidth="0.8" strokeLinecap="round" />
+                <path d="M88 138 C94 142 100 145 106 142" stroke="#3D6B52" strokeWidth="0.6" strokeLinecap="round" fill="none" />
+              </svg>
+              {/* Leaf in corner */}
+              <div style={{ position: 'absolute', bottom: 16, right: 16 }}>
+                <LeafSprig width={64} height={64} opacity={0.35} />
               </div>
             </div>
 
             {/* Right: text */}
-            <div
-              style={{
-                opacity: storyVisible ? 1 : 0,
-                transform: storyVisible ? 'none' : 'translateX(24px)',
-                transition: 'opacity 0.9s ease 0.2s, transform 0.9s ease 0.2s',
-              }}
-            >
-              <p className="label-caps mb-4" style={{ color: '#C17A3B' }}>CERITA KAMI</p>
-              <h2 className="headline-md mb-8" style={{ color: '#1A1C1A' }}>
-                kenapa kami berbeda
+            <div>
+              <p className="label-overline reveal" style={{ marginBottom: 16 }}>CERITA KAMI</p>
+              <h2 className="heading-xl reveal" style={{ marginBottom: 24, transitionDelay: '80ms' }}>
+                Dari Lereng Arjuno
               </h2>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-                <p className="body-md" style={{ color: '#414844' }}>
-                  Berdiri di tengah kawasan Hutan Cempaka Prigen, Toko Kopi Jaya Lestari lahir dari
-                  kecintaan mendalam terhadap kopi lokal Nusantara dan keindahan alam lereng
-                  Gunung Arjuno.
-                </p>
-                <p className="body-md" style={{ color: '#414844' }}>
-                  Di ketinggian 875 mdpl, udara sejuk dan tanah subur menjadi latar belakang sempurna
-                  bagi roastery kami. Setiap batch dipanggang kecil — tidak pernah massal — untuk
-                  menjaga karakter rasa asli dari setiap kebun asal.
-                </p>
-                <p className="body-md" style={{ color: '#414844' }}>
-                  Kami percaya bahwa kopi yang baik dimulai dari kejujuran: jujur tentang asal usul,
-                  proses, dan rasa. Tidak ada yang disembunyikan. Hanya biji terbaik, dipanggang
-                  dengan presisi, dikirim segar ke tanganmu.
-                </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                {[
+                  'Toko Kopi Jaya Lestari lahir dari kecintaan mendalam pada kopi Indonesia. Berlokasi di Hutan Cempaka, Prigen, Pasuruan — di ketinggian 875 mdpl dengan udara sejuk khas lereng Arjuno.',
+                  'Kami percaya setiap cangkir kopi adalah sebuah cerita. Cerita tentang tanah, petani, dan tangan-tangan yang merawatnya dengan penuh dedikasi. Itulah mengapa kami hanya bekerja dengan single origin — satu kopi, satu cerita.',
+                  'Dengan metode small batch roasting, kami memastikan setiap biji dipanggang dengan perhatian penuh. Tidak massal. Tidak terburu-buru. Hanya kopi terbaik, untuk kamu.',
+                ].map((para, i) => (
+                  <p key={i} className="body-md reveal" style={{ transitionDelay: `${160 + i * 80}ms` }}>
+                    {para}
+                  </p>
+                ))}
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ══════════════════════════════════════════
-          PROSES ROASTING
-      ══════════════════════════════════════════ */}
-      <section
-        id="proses"
-        style={{ background: '#fff', paddingTop: 96, paddingBottom: 96 }}
-      >
+      {/* ── Proses ── */}
+      <section id="proses" className="section-py" style={{ background: '#F0EBE0' }}>
         <div className="container-jl">
-          <ProcessTimeline
-            steps={roastingSteps}
-            overline="PROSES KAMI"
-            headline="bagaimana kami memanggangnya"
-            light
-          />
-        </div>
-      </section>
-
-      {/* ══════════════════════════════════════════
-          ORIGIN STORIES — Dark section
-      ══════════════════════════════════════════ */}
-      <section
-        className="film-grain relative overflow-hidden"
-        style={{ background: '#1B4332', paddingTop: 100, paddingBottom: 100 }}
-      >
-        {/* Letterbox */}
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '10vh', background: '#1B4332', zIndex: 10 }} />
-        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '10vh', background: '#1B4332', zIndex: 10 }} />
-        {/* Vignette */}
-        <div style={{
-          position: 'absolute', inset: 0,
-          background: 'radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.5) 100%)',
-          zIndex: 5, pointerEvents: 'none',
-        }} />
-        {/* Light leaks */}
-        <div style={{
-          position: 'absolute', inset: 0, zIndex: 6, pointerEvents: 'none',
-          background: `
-            radial-gradient(ellipse 50% 40% at 0% 0%, rgba(193,122,59,0.18) 0%, transparent 70%),
-            radial-gradient(ellipse 50% 40% at 100% 100%, rgba(193,122,59,0.14) 0%, transparent 70%)
-          `,
-        }} />
-
-        <div className="container-jl" style={{ position: 'relative', zIndex: 8 }}>
           <div style={{ textAlign: 'center', marginBottom: 56 }}>
-            <p className="label-caps mb-4" style={{ color: '#C17A3B' }}>ASAL KOPI KAMI</p>
-            <h2 className="headline-md" style={{ color: '#F5ECD7' }}>dari seluruh kepulauan</h2>
+            <p className="label-overline reveal" style={{ marginBottom: 12 }}>ROASTERY</p>
+            <h2 className="heading-xl reveal" style={{ transitionDelay: '80ms' }}>
+              Proses Kami
+            </h2>
           </div>
 
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: 24,
-          }} className="origins-grid">
-            {origins.map((origin, i) => {
-              const chip = roastChipColors[origin.roast] ?? roastChipColors.medium
-              return (
-                <div
-                  key={origin.region}
-                  style={{
-                    background: 'rgba(245,236,215,0.08)',
-                    border: '1px solid rgba(245,236,215,0.12)',
-                    borderRadius: '1rem',
-                    padding: '24px',
-                  }}
-                >
-                  <p className="label-caps mb-2" style={{ color: '#C17A3B' }}>{origin.region}</p>
-                  <h3 className="headline-sm mb-3" style={{ color: '#F5ECD7', fontSize: '20px' }}>
-                    {origin.name}
-                  </h3>
-                  <p className="body-md mb-4" style={{ color: 'rgba(245,236,215,0.6)', fontSize: '14px' }}>
-                    {origin.desc}
-                  </p>
-                  <span style={{
-                    display: 'inline-block',
-                    padding: '4px 12px', borderRadius: 9999,
-                    background: chip.bg, color: chip.color,
-                    fontSize: '10px', fontWeight: 600, letterSpacing: '0.08em',
-                    textTransform: 'uppercase',
+          {/* Vine connector above steps */}
+          <div style={{ position: 'relative', marginBottom: 40 }}>
+            <div style={{ position: 'absolute', top: 28, left: '10%', right: '10%', zIndex: 0 }}>
+              <BotanicalVine width={undefined as unknown as number} height={56} opacity={0.2} style={{ width: '100%' }} />
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 24, position: 'relative', zIndex: 1 }}
+              className="process-grid">
+              {processSteps.map((step, i) => (
+                <div key={step.n} className="reveal" style={{ textAlign: 'center', transitionDelay: `${i * 100}ms` }}>
+                  <div style={{
+                    width: 56, height: 56, borderRadius: '50%',
+                    border: '1.5px solid #3D6B52', background: '#F0EBE0',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    margin: '0 auto 20px', zIndex: 2, position: 'relative',
                   }}>
-                    {origin.roast} roast
-                  </span>
+                    <span style={{ fontFamily: 'var(--font-playfair), serif', fontSize: 18, fontWeight: 400, color: '#3D6B52' }}>
+                      {step.n}
+                    </span>
+                  </div>
+                  <h3 style={{ fontFamily: 'var(--font-playfair), serif', fontSize: 18, fontWeight: 600, color: '#2C3E35', marginBottom: 10 }}>
+                    {step.title}
+                  </h3>
+                  <p className="body-md" style={{ fontSize: 14 }}>{step.desc}</p>
                 </div>
-              )
-            })}
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ══════════════════════════════════════════
-          KOMITMEN KAMI
-      ══════════════════════════════════════════ */}
-      <section
-        ref={commitRef}
-        style={{ background: '#FAF7F2', paddingTop: 96, paddingBottom: 96 }}
-      >
+      {/* ── Origin ── */}
+      <section className="section-py" style={{ background: '#FAF6EF', borderTop: '1px solid #DDD5C8', borderBottom: '1px solid #DDD5C8' }}>
         <div className="container-jl">
-          <div style={{ textAlign: 'center', marginBottom: 56 }}>
-            <p className="label-caps mb-3" style={{ color: '#C17A3B' }}>NILAI KAMI</p>
-            <h2 className="headline-md">komitmen kami</h2>
+          <div style={{ textAlign: 'center', marginBottom: 48 }}>
+            <p className="label-overline reveal" style={{ marginBottom: 12 }}>PERJALANAN RASA</p>
+            <h2 className="heading-xl reveal" style={{ transitionDelay: '80ms' }}>
+              Origin Kami
+            </h2>
           </div>
-
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: 24,
-          }} className="commit-grid">
-            {[
-              {
-                icon: '🌿',
-                overline: 'SINGLE ORIGIN',
-                title: 'Kami tau persis kopimu dari mana',
-                desc: 'Setiap produk kami mencantumkan daerah asal, ketinggian kebun, dan proses pasca panen secara transparan.',
-              },
-              {
-                icon: '🔥',
-                overline: 'FRESH ROASTED',
-                title: 'Dipanggang setelah pesananmu masuk',
-                desc: 'Tidak ada stok lama. Tidak ada kopi yang duduk berminggu-minggu di rak. Selalu segar.',
-              },
-              {
-                icon: '📦',
-                overline: 'VAKUM SEALED',
-                title: 'Kesegaran terjaga hingga ke tanganmu',
-                desc: 'Dikemas dengan one-way valve agar CO₂ keluar tapi oksigen tidak masuk. Standar specialty coffee.',
-              },
-            ].map((val, i) => (
-              <div
-                key={val.overline}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}
+            className="origin-grid">
+            {origins.map((o, i) => (
+              <div key={o.region} className="reveal"
                 style={{
-                  background: '#F5ECD7',
-                  border: '1px solid #E8E3DA',
-                  borderRadius: '1rem',
-                  padding: '32px',
-                  opacity: commitVisible ? 1 : 0,
-                  transform: commitVisible ? 'none' : 'translateY(24px)',
-                  transition: `opacity 0.7s ease ${i * 0.15}s, transform 0.7s ease ${i * 0.15}s`,
-                }}
-              >
-                <div style={{ fontSize: 32, marginBottom: 16 }}>{val.icon}</div>
-                <p className="label-caps mb-3" style={{ color: '#C17A3B' }}>{val.overline}</p>
-                <h3 className="headline-sm mb-3" style={{ fontSize: '20px' }}>{val.title}</h3>
-                <p className="body-md" style={{ color: '#414844', fontSize: '15px' }}>{val.desc}</p>
+                  background: o.color,
+                  borderRadius: 16,
+                  border: '1px solid #DDD5C8',
+                  padding: '20px 20px',
+                  position: 'relative',
+                  transitionDelay: `${(i % 3) * 80}ms`,
+                }}>
+                <LeafSprig width={44} height={44} opacity={0.3}
+                  style={{ position: 'absolute', top: 12, right: 12 }} />
+                <p style={{ fontSize: 10, color: '#6B7C72', letterSpacing: '0.15em', textTransform: 'uppercase', fontFamily: 'var(--font-inter), sans-serif', marginBottom: 6 }}>
+                  {o.island}
+                </p>
+                <h3 style={{ fontFamily: 'var(--font-playfair), serif', fontSize: 18, fontWeight: 600, color: '#2C3E35', marginBottom: 6 }}>
+                  {o.region}
+                </h3>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span className={`chip-${o.roast.toLowerCase() as 'light'|'medium'|'dark'}`}>{o.roast}</span>
+                  <span style={{ fontFamily: 'var(--font-playfair), serif', fontSize: 14, fontWeight: 700, color: '#3D6B52' }}>{o.price}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Values ── */}
+      <section className="section-py" style={{ background: '#F0EBE0' }}>
+        <div className="container-jl">
+          <div style={{ textAlign: 'center', marginBottom: 48 }}>
+            <p className="label-overline reveal" style={{ marginBottom: 12 }}>KOMITMEN KAMI</p>
+            <h2 className="heading-xl reveal" style={{ transitionDelay: '80ms' }}>
+              Nilai-Nilai Kami
+            </h2>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}
+            className="values-grid">
+            {values.map((v, i) => (
+              <div key={v.title} className="reveal product-card-botanical"
+                style={{ padding: '32px 28px', textAlign: 'center', transitionDelay: `${i * 100}ms` }}>
+                <div style={{ fontSize: 36, marginBottom: 16 }}>{v.icon}</div>
+                <h3 style={{ fontFamily: 'var(--font-playfair), serif', fontSize: 20, fontWeight: 600, color: '#2C3E35', marginBottom: 12 }}>
+                  {v.title}
+                </h3>
+                <p className="body-md" style={{ fontSize: 14 }}>{v.desc}</p>
               </div>
             ))}
           </div>
@@ -400,16 +276,17 @@ export default function AboutPage() {
       <Footer />
 
       <style>{`
-        @media (max-width: 768px) {
-          .story-grid { grid-template-columns: 1fr !important; }
-          .origins-grid { grid-template-columns: 1fr !important; }
-          .commit-grid { grid-template-columns: 1fr !important; }
+        @media(max-width:768px){
+          .split-grid{grid-template-columns:1fr!important}
+          .process-grid{grid-template-columns:repeat(2,1fr)!important}
+          .origin-grid{grid-template-columns:repeat(2,1fr)!important}
+          .values-grid{grid-template-columns:1fr!important}
         }
-        @media (max-width: 1024px) {
-          .origins-grid { grid-template-columns: repeat(2, 1fr) !important; }
-          .commit-grid { grid-template-columns: repeat(2, 1fr) !important; }
+        @media(max-width:480px){
+          .origin-grid{grid-template-columns:1fr!important}
+          .process-grid{grid-template-columns:1fr!important}
         }
       `}</style>
-    </main>
+    </div>
   )
 }
