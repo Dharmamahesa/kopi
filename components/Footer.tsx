@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { MessageCircle } from 'lucide-react'
-import { LogoBranchIcon } from './illustrations/Botanicals'
+import Image from 'next/image'
 
 const navLinks = [
   { href: '/', label: 'Beranda' },
@@ -36,7 +36,13 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-              <LogoBranchIcon size={24} color="#8FAF97" />
+              <Image
+                src="/logojales.jpeg"
+                alt="Jaya Lestari"
+                width={38}
+                height={38}
+                style={{ objectFit: 'contain', borderRadius: 6 }}
+              />
               <span style={{ fontFamily: 'var(--font-playfair), serif', fontSize: 18, fontWeight: 600, color: '#F0EBE0' }}>
                 Toko Kopi Jaya Lestari
               </span>

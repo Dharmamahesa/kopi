@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { Menu, X, MessageCircle } from 'lucide-react'
-import { LogoBranchIcon } from './illustrations/Botanicals'
+import Image from 'next/image'
 
 const navLinks = [
   { href: '/products', label: 'Produk' },
@@ -41,7 +41,13 @@ export default function Navbar() {
         <div className="container-jl" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '68px' }}>
           {/* Logo */}
           <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
-            <LogoBranchIcon size={26} color="#3D6B52" />
+            <Image
+              src="/logojales.jpeg"
+              alt="Jaya Lestari"
+              width={40}
+              height={40}
+              style={{ objectFit: 'contain', borderRadius: 6 }}
+            />
             <span style={{
               fontFamily: 'var(--font-playfair), serif',
               fontSize: '18px',
@@ -105,9 +111,12 @@ export default function Navbar() {
         transition: 'opacity 0.35s ease, transform 0.4s cubic-bezier(0.23,1,0.32,1)',
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 48 }}>
-          <span style={{ fontFamily: 'var(--font-playfair), serif', fontSize: 20, fontWeight: 600, color: '#2C3E35' }}>
-            Jaya Lestari
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <Image src="/logojales.jpeg" alt="Jaya Lestari" width={36} height={36} style={{ objectFit: 'contain', borderRadius: 6 }} />
+            <span style={{ fontFamily: 'var(--font-playfair), serif', fontSize: 20, fontWeight: 600, color: '#2C3E35' }}>
+              Jaya Lestari
+            </span>
+          </div>
           <button onClick={() => setMenuOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#2C3E35', padding: 4 }}>
             <X size={24} />
           </button>
