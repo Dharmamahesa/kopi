@@ -42,7 +42,7 @@ export default function Navbar() {
           {/* Logo */}
           <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
             <Image
-              src="/logojales.jpeg"
+              src="/logojales.png"
               alt="Jaya Lestari"
               width={40}
               height={40}
@@ -112,7 +112,7 @@ export default function Navbar() {
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 48 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <Image src="/logojales.jpeg" alt="Jaya Lestari" width={36} height={36} style={{ objectFit: 'contain', borderRadius: 6 }} />
+            <Image src="/logojales.png" alt="Jaya Lestari" width={36} height={36} style={{ objectFit: 'contain', borderRadius: 6 }} />
             <span style={{ fontFamily: 'var(--font-playfair), serif', fontSize: 20, fontWeight: 600, color: '#2C3E35' }}>
               Jaya Lestari
             </span>

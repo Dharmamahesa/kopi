@@ -37,7 +37,7 @@ export default function Footer() {
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
               <Image
-                src="/logojales.jpeg"
+                src="/logojales.png"
                 alt="Jaya Lestari"
                 width={38}
                 height={38}
